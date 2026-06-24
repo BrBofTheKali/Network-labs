@@ -1,0 +1,196 @@
+version 16.7
+service timestamps debug datetime msec
+service timestamps log datetime msec
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+platform console serial
+!
+hostname CORE-SPB
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+!
+!
+!
+!
+!
+ipv6 unicast-routing
+!
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+license udi pid CSR1000V sn 92V8CTIMCLL
+no license smart enable
+diagnostic bootup level minimal
+!
+spanning-tree extend system-id
+!
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet1
+ no ip address
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet2
+ ip address 192.0.2.6 255.255.255.252
+ ip router isis 1
+ negotiation auto
+ no mop enabled
+ no mop sysid
+ isis hello-interval 40
+!
+interface GigabitEthernet3
+ ip address 192.0.2.13 255.255.255.252
+ ip router isis 1
+ negotiation auto
+ ipv6 address 2001:DB8:EEEE:EEEE:EEEE:EEEE:EEEE:2/127
+ ipv6 router isis 1
+ no mop enabled
+ no mop sysid
+ isis network point-to-point
+ isis hello-interval 40
+!
+interface GigabitEthernet4
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+router isis 1
+ net 49.0002.1900.0000.2013.00
+ is-type level-1
+ metric-style wide
+!
+router bgp 65001
+ bgp log-neighbor-changes
+ neighbor 2001:DB8:EEEE:EEEE:EEEE:EEEE:EEEE:3 remote-as 65001
+ neighbor 192.0.2.5 remote-as 65011
+ neighbor 192.0.2.14 remote-as 65001
+ !
+ address-family ipv4
+  network 192.0.2.4 mask 255.255.255.252
+  network 192.0.2.12 mask 255.255.255.252
+  no neighbor 2001:DB8:EEEE:EEEE:EEEE:EEEE:EEEE:3 activate
+  neighbor 192.0.2.5 activate
+  neighbor 192.0.2.5 route-map FROM-CLIENT in
+  neighbor 192.0.2.5 route-map TO-CLIENT out
+  neighbor 192.0.2.14 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:DB8:EEEE:EEEE:EEEE:EEEE:EEEE:2/127
+  neighbor 2001:DB8:EEEE:EEEE:EEEE:EEEE:EEEE:3 activate
+ exit-address-family
+!
+ip forward-protocol nd
+ip http server
+ip http authentication local
+ip http secure-server
+!
+!
+!
+ip prefix-list FROM-CLIENT seq 10 permit 192.0.2.4/30
+!
+ip prefix-list TO-CLIENT seq 10 permit 0.0.0.0/0
+!
+!
+route-map FROM-CLIENT permit 10
+ description "Permit prefix 192.0.2.4/30 from CLIENT"
+ match ip address prefix-list FROM-CLIENT
+!
+route-map FROM-CLIENT deny 20
+!
+route-map TO-CLIENT permit 10
+ description "Permit only default gateway"
+ match ip address prefix-list TO-CLIENT
+!
+route-map TO-CLIENT deny 20
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ login
+!
+wsma agent exec
+!
+wsma agent config
+!
+wsma agent filesys
+!
+wsma agent notify
+!
+!
+end

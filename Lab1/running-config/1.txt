@@ -1,0 +1,147 @@
+!
+no service password-encryption
+!
+hostname EDGE-MSK
+!
+banner motd banner motd ge0 - e1, ge1-e2 etc; e0 - mngt
+!
+hw mgmt ip 192.168.255.1/24
+hw mgmt ipv6 fe80::1e87:76ff:fe42:0/64
+!
+bgp extended-asn-cap
+!
+ip vrf management
+!
+ipv6 unicast-routing
+!
+class-map default
+!
+security none
+!
+security none vrf management
+!
+security ipv6 default
+!
+security ipv6 none vrf management
+!
+mpls propagate-ttl
+mpls label mode per-vrf
+mpls exp stack-size all
+!
+ip domain-lookup
+filter-map optimize
+filter-map policy optimize
+!
+!
+ip pim register-rp-reachability
+!
+router isis 1
+ metric-style wide
+ net 49.0001.2030.0011.3002.00
+!
+router bgp 65001
+ network 192.0.2.8/30
+ network 192.0.2.16/30
+ network 203.0.113.0/30
+ neighbor 192.0.2.9 remote-as 65001
+ neighbor 192.0.2.9 next-hop-self
+ neighbor 192.0.2.9 default-originate
+ neighbor 192.0.2.9 route-map TO-CORE out
+ neighbor 192.0.2.18 remote-as 65000
+ neighbor 203.0.113.1 remote-as 65001
+ neighbor 203.0.113.1 route-reflector-client
+ neighbor 203.0.113.1 next-hop-self
+ neighbor 203.0.113.1 default-originate
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:1 remote-as 65001
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:1 remote-as 65001
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:2 remote-as 65000
+ address-family ipv6 unicast
+ network 2001:db8:eeee:eeee:eeee:eeee:eeee:0/127
+ network 2001:db8:ffff:ffff:ffff:ffff:ffff:0/127
+ network 2001:db8:ffff:ffff:ffff:ffff:ffff:2/127
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:1 activate
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:1 route-map TO-CORE-IPv6 out
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:1 activate
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:1 next-hop-self
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:1 default-originate
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:2 activate
+ exit-address-family
+!
+ip prefix-list TO-CORE seq 10 permit 0.0.0.0/0
+ip prefix-list TO-CORE seq 20 permit 203.0.113.0/30 eq 30
+ip prefix-list TO-CORE seq 30 permit 192.0.2.16/30 eq 30
+!
+ipv6 prefix-list TO-CORE-IPv6 seq 10 permit ::/0
+ipv6 prefix-list TO-CORE-IPv6 seq 20 permit 2001:db8:ffff:ffff:ffff:ffff:ffff:0/127
+!
+line con 0
+line vty 0 15
+ exec-timeout 100 0
+line vty 16 39
+!
+port te0
+ mtu 9728
+ service-instance 3
+  encapsulation untagged
+!
+port te1
+ mtu 9728
+!
+port te2
+ mtu 9728
+ service-instance 2
+  encapsulation untagged
+!
+port te3
+ mtu 9728
+ service-instance 1
+  encapsulation untagged
+!
+interface e4
+ ip mtu 1500
+ connect port te3 service-instance 1
+ ip address 203.0.113.2/30
+ ipv6 address 2001:db8:ffff:ffff:ffff:ffff:ffff:0/127
+ ip router isis 1
+ ipv6 router isis 1
+ isis network point-to-point
+ isis hello-interval 40
+!
+interface e3
+ ip mtu 1500
+ connect port te2 service-instance 2
+ ip address 192.0.2.10/30
+ ipv6 address autoconf
+ ipv6 address 2001:db8:eeee:eeee:eeee:eeee:eeee:0/127
+ ip router isis 1
+ ipv6 router isis 1
+ isis network point-to-point
+ isis hello-interval 40
+!
+interface e1
+ ip mtu 1500
+ connect port te0 service-instance 3
+ ip address 192.0.2.17/30
+ ipv6 address 2001:db8:ffff:ffff:ffff:ffff:ffff:3/127
+!
+arp request-interval 1
+arp request-number 3
+arp expiration-period 5
+arp solicitation-rate 2
+arp ip-collision-time 8
+arp incomplete-time 60
+!
+route-map TO-CORE permit 10
+ match ip address prefix-list TO-CORE
+!
+route-map TO-CORE deny 20
+!
+route-map TO-CORE deny 100
+!
+route-map TO-CORE-IPv6 permit 10
+ match ipv6 address prefix-list TO-CORE-IPv6
+!
+route-map TO-CORE-IPv6 deny 100
+!
+end
+

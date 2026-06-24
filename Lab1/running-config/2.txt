@@ -1,0 +1,130 @@
+!
+no service password-encryption
+!
+hostname EDGE-SPB
+!
+banner motd ge0 - e1, ge1-e2 etc; e0 - mngt
+!
+hw mgmt ip 192.168.255.1/24
+hw mgmt ipv6 fe80::1e87:76ff:fe4f:0/64
+!
+bgp extended-asn-cap
+!
+ip vrf management
+!
+ipv6 unicast-routing
+!
+class-map default
+!
+security default
+!
+security none vrf management
+!
+security ipv6 default
+!
+security ipv6 none vrf management
+!
+mpls propagate-ttl
+mpls label mode per-vrf
+mpls exp stack-size all
+!
+ip domain-lookup
+filter-map optimize
+filter-map policy optimize
+!
+!
+ip pim register-rp-reachability
+!
+router isis
+!
+router isis 1
+ metric-style wide
+ net 49.0002.2030.0011.3001.00
+!
+router bgp 65001
+ network 192.0.2.12/30
+ network 203.0.113.0/30
+ neighbor 192.0.2.13 remote-as 65001
+ neighbor 192.0.2.13 route-reflector-client
+ neighbor 192.0.2.13 next-hop-self
+ neighbor 192.0.2.13 default-originate
+ neighbor 192.0.2.13 route-map TO-CORE out
+ neighbor 203.0.113.2 remote-as 65001
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:2 remote-as 65001
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:0 remote-as 65001
+ address-family ipv6 unicast
+ network 2001:db8:eeee:eeee:eeee:eeee:eeee:2/127
+ network 2001:db8:ffff:ffff:ffff:ffff:ffff:0/127
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:2 activate
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:2 route-reflector-client
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:2 next-hop-self
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:2 default-originate
+ neighbor 2001:db8:eeee:eeee:eeee:eeee:eeee:2 route-map TO-CORE-IPv6 out
+ neighbor 2001:db8:ffff:ffff:ffff:ffff:ffff:0 activate
+ exit-address-family
+!
+ip prefix-list TO-CORE seq 10 permit 0.0.0.0/0
+ip prefix-list TO-CORE seq 20 permit 203.0.113.0/30 eq 30
+ip prefix-list TO-CORE seq 30 permit 192.0.2.16/30 eq 30
+!
+ipv6 prefix-list TO-CORE-IPv6 seq 10 permit ::/0
+ipv6 prefix-list TO-CORE-IPv6 seq 20 permit 2001:db8:ffff:ffff:ffff:ffff:ffff:0/127
+!
+line con 0
+line vty 0 39
+!
+port ge0
+ mtu 9728
+!
+port ge1
+ mtu 9728
+!
+port ge2
+ mtu 9728
+ service-instance 2
+  encapsulation untagged
+!
+port ge3
+ mtu 9728
+ service-instance 1
+  encapsulation untagged
+!
+interface e4
+ ip mtu 1500
+ connect port ge3 service-instance 1
+ ip address 203.0.113.1/30
+ ipv6 address 2001:db8:ffff:ffff:ffff:ffff:ffff:1/127
+ ip router isis 1
+ ipv6 router isis 1
+ isis network point-to-point
+ isis hello-interval 40
+!
+interface e3
+ ip mtu 1500
+ connect port ge2 service-instance 2
+ ip address 192.0.2.14/30
+ ipv6 address 2001:db8:eeee:eeee:eeee:eeee:eeee:3/127
+ ip router isis 1
+ ipv6 router isis 1
+ isis network point-to-point
+ isis hello-interval 40
+!
+arp request-interval 1
+arp request-number 3
+arp expiration-period 5
+arp solicitation-rate 2
+arp ip-collision-time 8
+arp incomplete-time 60
+!
+route-map TO-CORE permit 10
+ match ip address prefix-list TO-CORE
+!
+route-map TO-CORE deny 100
+!
+route-map TO-CORE-IPv6 permit 10
+ match ipv6 address prefix-list TO-CORE-IPv6
+!
+route-map TO-CORE-IPv6 deny 100
+!
+end
+

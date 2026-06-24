@@ -1,0 +1,45 @@
+# jun/24/2026 08:19:21 by RouterOS 7.8
+# software id =
+#
+/interface ethernet
+set [ find default-name=ether1 ] disable-running-check=no
+set [ find default-name=ether2 ] disable-running-check=no
+set [ find default-name=ether3 ] disable-running-check=no
+set [ find default-name=ether4 ] disable-running-check=no
+set [ find default-name=ether5 ] disable-running-check=no
+set [ find default-name=ether6 ] disable-running-check=no
+set [ find default-name=ether7 ] disable-running-check=no
+set [ find default-name=ether8 ] disable-running-check=no
+set [ find default-name=ether9 ] disable-running-check=no
+/disk
+set slot1 slot=slot1
+set slot2 slot=slot2
+set slot3 slot=slot3
+set slot4 slot=slot4
+set slot5 slot=slot5
+set slot6 slot=slot6
+set slot7 slot=slot7
+set slot8 slot=slot8
+set slot9 slot=slot9
+set slot10 slot=slot10
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/port
+set 0 name=serial0
+/routing bgp template
+set default as=65010
+/ip address
+add address=192.168.10.254/24 interface=ether8 network=192.168.10.0
+add address=192.0.2.1/30 comment=to-core-msk interface=ether2 network=\
+    192.0.2.0
+/ip dhcp-client
+add interface=ether1
+/ip firewall nat
+add action=src-nat chain=srcnat out-interface=ether2 to-addresses=192.0.2.1
+/ip route
+add gateway=190.0.2.2
+/routing bgp connection
+add as=65010 disabled=no local.address=192.0.2.1 .role=ebgp name=BGP-65010 \
+    remote.address=192.0.2.2 .as=65001
+/routing rule
+add
