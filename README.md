@@ -51,7 +51,8 @@ Each lab includes:
 
 ---
 
-## 📬 Contact
-
+## 🎯 About me
+- Name: Denis
+- Education: Ivanovo industrial and economic college, Russia 2/4 course, Graduation Date:2028
 - Telegram: [@BrBofTheKali](https://t.me/brbofthekali)
-- Email: [denissmex1997@email.com](mailto:denissmex1997@@mail.ru)
+- Email: [denissmex1997@mail.ru](mailto:denissmex1997@mail.ru)
