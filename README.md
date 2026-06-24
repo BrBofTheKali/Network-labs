@@ -17,7 +17,7 @@ Hands-on network labs emulating real-world ISP and enterprise scenarios.
 
 ## 🛠️ Lab Environment
 
-- **Platform:** GNS3
+- **Platform:** GNS3, EVE-NG
 - **Router images:**  EcoRouter, Cisco IOS XE, MirkoTik 
 
 ---
