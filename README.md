@@ -1,7 +1,7 @@
 # 🌐 Network Labs
 
 ![Labs](https://img.shields.io/badge/Labs-1-blue)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![Status](https://img.shields.io/badge/Status-Rest--2month-yellow)
 
 Hands-on network labs emulating real-world ISP and enterprise scenarios.
 
