@@ -41,12 +41,12 @@ Each lab includes:
     .
     ├── Lab1/                  # ISP Backbone Lab
     │   ├── README-RUS.md      # Russian description
-    │   ├── README-ENG.md      # English description(temporary unavaible)
+    │   ├── README-ENG.md      # English description
     │   ├── screenshots/       # Topology, tests, routing tables
     │   ├── running-configs/   # Running configurations
     │   ├── troubles/1/        # Known Issues
     │   └── ...
-    ├── Lab2/                  # Coming soon
+    ├── Lab2/                  # In progress
     └── README.md              # This file
 
 
