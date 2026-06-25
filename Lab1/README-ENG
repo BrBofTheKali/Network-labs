@@ -1,6 +1,0 @@
-Description of completed labs
-Task:
-There is an ISP backbone for communication between St. Petersburg and Moscow. Each city has a core router(core router).
-Routing must be provided between two clients in different cities, each client is assigned special addresses and AS numbers, and access to the Internet.
-This lab required enabling BGP and IS-IS protocols, configuring IPv4 and IPv6 addressing, and implementing simple route-map policy for route filtering.
-Special addresses (RFC 5737 & RFC 3849 & RFC 1918) were used for routing between routers and a private AS(RFC 6996) for BGP
