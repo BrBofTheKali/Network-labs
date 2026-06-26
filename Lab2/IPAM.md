@@ -1,3 +1,4 @@
+**IP segments**
 | Name                        | IPv4/mask            | IPv6/mask              | Purpose                    |
 | --------------------------- | -------------------- | ---------------------- | -------------------------- |
 | Edge-to-Core                | 203.0.113.0/31       | 2001:db8:0000::/127    | P2P connection             |
@@ -23,3 +24,29 @@
 | CPE-4 local network         | 10.0.1.0/24          | not supported          | local network              |
 | CPE-6 local network         | 10.0.1.0/24          | not supported          | local network              |
 | Loopback                    | 192.0.2.128/25       | not supported          | Loopback IP(BGP peering)   |
+
+**IPv4/IPv6 address for routers**
+| Hostname     | Interface | To              | IPv4 address     | IPv6 address         |
+| ------------ | --------- | --------------- | ---------------- | -------------------- |
+| EDGE-SARATOV | Gi1       | CORE-SARATOV    | 203.0.113.1/31   | 2001:db8:0000::1/127 |
+| CORE-SARATOV | e4        | TO EDGE-SARATOV | 203.0.113.2/31   | 2001:db8:0000::2/127 |
+| CORE-SARATOV | e1        | PE-KIROVSKIY    | 198.51.100.0/31  | 2001:db8:0001::0/127 |
+| CORE-SARATOV | e2        | PE-VOLGSKIY     | 198.51.100.2/31  | 2001:db8:0001::2/127 |
+| PE-KIROVSKIY | e1/0/0    | PE-VOLGSKIY     | 198.51.100.4/31  | 2001:db8:0001::4/127 |
+| PE-VOLGSKIY  | e1/0/2    | PE-KIROVSKIY    | 198.51.100.5/31  | 2001:db8:0001::5/127 |
+| PE-KIROVSKIY | e1/0/3    | CPE-5           | 198.51.100.9/30  | not supported        |
+| PE-KIROVSKIY | e1/0/2    | CPE-7           | 198.51.100.13/30 | not supported        |
+| PE-VOLGSKIY  | e1/0/0    | CPE-4           | 198.51.100.17/30 | not supported        |
+| PE-VOLGSKIY  | e1/0/1    | CPE-6           | 198.51.100.21/30 | not supported        |
+| CPE-5        | eth1      | PE-KIROVSKIY    | 198.51.100.10/30 | not supported        |
+| CPE-7        | eth1      | PE-KIROVSKIY    | 198.51.100.14/30 | not supported        |
+| CPE-4        | eth1      | PE-VOLGSKIY     | 198.51.100.18/30 | not supported        |
+| CPE-6        | eth1      | PE-VOLGSKIY     | 198.51.100.22/30 | not supported        |
+| CPE-5-DG     | eth2      |                 | 10.0.0.254/24    | not supported        |
+| CPE-7-DG     | eth2      |                 | 10.0.0.254/24    | not supported        |
+| CPE-4-DG     | eth2      |                 | 10.0.1.254/24    | not supported        |
+| CPE-6-DG     | eth2      |                 | 10.0.1.254/24    | not supported        |
+| EDGE-SARATOV | loopback0 | internal        | 1920.2.129/32    | not supported        |
+| CORE-SARATOV | loopback0 | internal        | 1920.2.130/32    | not supported        |
+| PE-KIROVSKIY | loopback0 | internal        | 1920.2.131/32    | not supported        |
+| PE-VOLGSKIY  | loopback0 | internal        | 1920.2.132/32    | not supported        |
