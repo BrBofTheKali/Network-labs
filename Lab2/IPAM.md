@@ -49,4 +49,16 @@
 | EDGE-SARATOV | loopback0 | internal        | 192.0.2.129/32    | not supported        |
 | CORE-SARATOV | loopback0 | internal        | 192.0.2.130/32    | not supported        |
 | PE-KIROVSKIY | loopback0 | internal        | 192.0.2.131/32    | not supported        |
-| PE-VOLGSKIY  | loopback0 | internal        | 192.0.2.132/32    | not supported        |
+| PE-VOLGSKIY  | loopback0 | internal        | 192.0.2.132/32    | not supported        |  
+
+**PAT translation table for SSH connection**  
+| Hostname     | Base IP       | IP translation | SSH port |
+| ------------ | ------------- | -------------- | -------- |
+| EDGE-SARATOV | 192.168.1.7   | -              | 22       |
+| CORE-SARATOV | 192.0.2.129   | 192.168.1.7    | 15000    |
+| PE-KIROVSKIY | 192.0.2.130   | 192.168.1.7    | 15001    |
+| PE-VOLGSKIY  | 192.0.2.131   | 192.168.1.7    | 15002    |
+| CPE-5        | 198.51.100.10 | 192.168.1.7    | 20000    |
+| CPE-7        | 198.51.100.14 | 192.168.1.7    | 20001    |
+| CPE-4        | 198.51.100.18 | 192.168.1.7    | 20010    |
+| CPE-6        | 198.51.100.22 | 192.168.1.7    | 20011    |
