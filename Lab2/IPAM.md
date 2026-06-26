@@ -32,7 +32,9 @@
 | CORE-SARATOV | e4        | TO EDGE-SARATOV | 203.0.113.2/31   | 2001:db8:0000::2/127 |
 | CORE-SARATOV | e1        | PE-KIROVSKIY    | 198.51.100.0/31  | 2001:db8:0001::0/127 |
 | CORE-SARATOV | e2        | PE-VOLGSKIY     | 198.51.100.2/31  | 2001:db8:0001::2/127 |
-| PE-KIROVSKIY | e1/0/0    | PE-VOLGSKIY     | 198.51.100.4/31  | 2001:db8:0001::4/127 |
+| PE-KIROVSKIY | e1/0/1    | CORE-SARATOV    | 198.51.100.1/31  | 2001:db8:0001::0/127 |
+| PE-VOLGSKIY  | e1/0/3    | CORE-SARATOV    | 198.51.100.3/31  | 2001:db8:0001::0/127 |
+| PE-KIROVSKIY | e1/0/1    | PE-VOLGSKIY     | 198.51.100.4/31  | 2001:db8:0001::4/127 |
 | PE-VOLGSKIY  | e1/0/2    | PE-KIROVSKIY    | 198.51.100.5/31  | 2001:db8:0001::5/127 |
 | PE-KIROVSKIY | e1/0/3    | CPE-5           | 198.51.100.9/30  | not supported        |
 | PE-KIROVSKIY | e1/0/2    | CPE-7           | 198.51.100.13/30 | not supported        |
