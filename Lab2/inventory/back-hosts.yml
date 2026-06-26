@@ -1,0 +1,48 @@
+all:
+  children:
+    Edge: #edge-routers
+      children:
+        cisco: #group cisco
+          hosts: #list hosts
+            EDGE-SARATOV: #name
+              ansible_host:192.168.1.7
+              ansible_user:adm
+              ansible_port:22 # example for another host
+    Core: # core-routers
+      children:
+      ecorouter:
+        hosts:
+          CORE-SARATOV:
+            ansible_host:192.168.1.7
+            ansible_user:admin
+            ansuble_port:15000   #PAT-table port
+    PE: #PE-routers
+      huawei:
+        hosts:
+          PE-KIROVSKIY:
+            ansible_host:192.168.1.7
+            ansible_user:admin
+            ansible_port:15001
+          PE-VOLGSKIY:
+            ansible_host:192.168.1.7
+            ansible_user:admin
+            ansible_port:15002
+    CPE: #clients
+      mikrotik:
+        hosts:
+          CPE-5:
+            ansible_host:192.168.1.7
+            ansible_user:ISP
+            ansible_port:20000
+          CPE-7:
+            ansible_host:192.168.1.7
+            ansible_user:ISP
+            ansible_port:20001
+          CPE-4:
+            ansible_host:192.168.1.7
+            ansible_user:ISP
+            ansible_port:20010
+          CPE-6:
+            ansible_host:192.168.1.7
+            ansible_user:ISP
+            ansible_port:20011
