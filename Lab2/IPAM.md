@@ -28,7 +28,7 @@
 **IPv4/IPv6 address for routers**
 | Hostname     | Interface | To              | IPv4 address     | IPv6 address         |
 | ------------ | --------- | --------------- | ---------------- | -------------------- |
-| EDGE-SARATOV | Gi1       | CORE-SARATOV    | 203.0.113.1/31   | 2001:db8:0000::1/127 |
+| EDGE-SARATOV | Gi0/0/0/0 | CORE-SARATOV    | 203.0.113.1/31   | 2001:db8:0000::1/127 |
 | CORE-SARATOV | e4        | TO EDGE-SARATOV | 203.0.113.2/31   | 2001:db8:0000::2/127 |
 | CORE-SARATOV | e1        | PE-KIROVSKIY    | 198.51.100.0/31  | 2001:db8:0001::0/127 |
 | CORE-SARATOV | e2        | PE-VOLGSKIY     | 198.51.100.2/31  | 2001:db8:0001::2/127 |
