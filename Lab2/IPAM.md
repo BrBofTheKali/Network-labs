@@ -46,7 +46,7 @@
 | CPE-7-DG     | eth2      |                 | 10.0.0.254/24    | not supported        |
 | CPE-4-DG     | eth2      |                 | 10.0.1.254/24    | not supported        |
 | CPE-6-DG     | eth2      |                 | 10.0.1.254/24    | not supported        |
-| EDGE-SARATOV | loopback0 | internal        | 1920.2.129/32    | not supported        |
-| CORE-SARATOV | loopback0 | internal        | 1920.2.130/32    | not supported        |
-| PE-KIROVSKIY | loopback0 | internal        | 1920.2.131/32    | not supported        |
-| PE-VOLGSKIY  | loopback0 | internal        | 1920.2.132/32    | not supported        |
+| EDGE-SARATOV | loopback0 | internal        | 192.0.2.129/32    | not supported        |
+| CORE-SARATOV | loopback0 | internal        | 192.0.2.130/32    | not supported        |
+| PE-KIROVSKIY | loopback0 | internal        | 192.0.2.131/32    | not supported        |
+| PE-VOLGSKIY  | loopback0 | internal        | 192.0.2.132/32    | not supported        |
