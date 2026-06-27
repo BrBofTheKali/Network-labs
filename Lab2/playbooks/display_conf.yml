@@ -1,0 +1,21 @@
+---
+- name: Gathering full display configuration
+  hosts: EDGE-SARATOV
+  gather_facts: no #always!
+  vars:
+    # lookup - request to another. Pipe - do command (date our case)
+    timestamp: "{{lookup('pipe','date +%Y-%m-%d_%H:%M:%S')}}"
+  tasks:
+
+    - name: Gathering
+      ansible.netcommon.cli_command: #cli - very simple; future - netconf, not now
+        command: display current-configuration #just a command
+      register: output #register make variable
+
+    - name: save to file
+      ansible.builtin.copy:
+        content: "{{output.stdout}}" #output - variable. stdout - standard out from CLI
+        # destination folder(absolute path)
+        dest: "/root/github/Network-labs/Lab2/playbooks/{{inventory_hostname}}_{{timestamp}}_config_.xml"
+      # action make localhost, not router(we make file on EVE-NG) 
+      delegate_to: localhost

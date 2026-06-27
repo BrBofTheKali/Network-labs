@@ -1,0 +1,4 @@
+---
+#use netconf
+ansible_connection: netconf
+ansibele_network_os: community.network.ce
