@@ -1,0 +1,58 @@
+---
+- name: SET IP+NET
+  hosts: EDGE-SARATOV
+  gather_facts: no #always!
+  vars:
+    neighbor: "CORE-SARATOV"
+    timestamp: "{{lookup('pipe','date +%Y-%m-%d_%H:%M:%S')}}"
+    IPv4-first: "{{lookup('pipe','awk -F'|' '/{{inventory_hostname}}/&&/{{neighbor}}/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/IPAM.md')}}"
+    IPv4: "{{IPv4-first| ansible.utils.ipaddr('address')}} {{IPv4-first | ansible.utils.ipaddr('netmask')}}"
+    IPv6: "{{lookup('pipe','awk -F'|' '/{{inventory_hostname}}/&&/{{neighbor}}/{gsub(/ /,"",$6); print $6; exit}' /root/github/Network-labs/Lab2/IPAM.md')}}"
+    interface: "{{lookup('pipe','awk -F'|' '/{{inventory_hostname}}/&&/{{neighbor}}/{gsub(/ /,"",$3);sub(/^e/,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/IPAM.md')}}"
+    NET: "{{ lookup('pipe', 'awk -F\"|\" ''/EDGE-SARATOV/{gsub(/ /,\"\",$3); print $3; exit}'' /root/github/Network-labs/Lab2/routing-register.md') }}"
+  tasks:
+    - name: create_backup
+      ansible.netcommon.cli_command:
+        command: save {timestamp}_backup.cfg
+        promt: "Are you sure to continue???"
+        answer: "y"
+    - name: set IP and NET
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          isis
+          network-entity {{NET}}
+          quit
+          interface Ethernet {{interface}}
+          undo shutdown
+          ip add {{IPv4}}
+          ipv6 add {{IPv6}}
+          isis enable 1
+          quit
+
+    - name: print difference
+      ansible.netcommon.cli_command:
+        command: "display current-configuration interface Ethernet {{interface}}"
+      register: diff_output
+    - name: print what was changed
+      ansible.builtin.debug:
+        msg: "{{diff.output.stdout_lines}}"
+    - name: asking me
+      ansible.builtin.pause:
+      promt: "Commit?(yes/no)"
+      register: answer
+    - name: commit if yes
+      ansible.netcommon.cli_command:
+        command: |
+          commit
+          save vrpcfg.cfg
+        promt:
+          - are you sure?
+          - overwrite?
+        answer: y
+      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+    - name: clear conf if no
+      ansible.netcommon.cli_commanad:
+        command: "clear configuration candidate"
+      when: answer.user_input| lower != "yes"
+      ignore_errors: yes #insurance if someone breaked
