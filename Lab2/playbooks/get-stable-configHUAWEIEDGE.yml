@@ -1,13 +1,25 @@
 - name: depoloy stable config to EDGE-SARATOV
-  hosts: huaweiEDGE
+  hosts: EDGE-SARATOV
   gather_facts: false
   vars:
-    path_config: "playbooks/config/{{inventory_hostname}}.cfg"
+    path_config: "/root/github/Network-labs/Lab2/playbooks/config/{{ inventory_hostname }}.cfg"
+    ansible_network_cli_ssh_type: paramiko
+  pre_tasks:
+    - name: delete old config if exists
+      ansible.netcommon.cli_command:
+        command: "delete /unreserved cfcard:/config-get/{{ inventory_hostname }}.cfg"
+        prompt: "Delete cfcard:/{{ inventory_hostname }}.cfg"
+        answer: "y"
 
+    - name: save current config to cfcard
+      ansible.netcommon.cli_command:
+        command: "save cfcard:/config-get/{{ inventory_hostname }}.cfg"
+        prompt: "Are you sure to save the configuration"
+        answer: "y"
   tasks:
     - name: get stable config
       ansible.netcommon.net_get:
-        src: "cfcard:vrpcfg.cfg"
+        src: "config-get/{{inventory_hostname}}.cfg"
         dest: "{{path_config}}"
-        protocol: scp
+        protocol: sftp
 
