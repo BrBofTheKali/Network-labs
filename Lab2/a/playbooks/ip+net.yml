@@ -1,7 +1,7 @@
 ---
 - name: SET IP+NET
   hosts: EDGE-SARATOV
-  gather_facts: no #always!
+  gather_facts: false #always!
   vars:
     neighbor: CORE-SARATOV #help to find IP and interface in IPAM.md
   pre_tasks:
@@ -155,7 +155,7 @@
               load configuration file backup_timestamp.cfg replace
               commit
           when: answer.user_input | lower != "yes"
-          ignore_errors: yes #insurance if someone breaks
+          ignore_errors: true #insurance if someone breaks
 
       rescue:
         - name: rollback to backup

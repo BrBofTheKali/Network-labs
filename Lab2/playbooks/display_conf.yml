@@ -1,7 +1,7 @@
 ---
 - name: Gathering full display configuration
   hosts: EDGE-SARATOV
-  gather_facts: no #always!
+  gather_facts: false #always!
   vars:
     # lookup - request to another. Pipe - do command (date our case)
     timestamp: "{{lookup('pipe','date +%Y-%m-%d_%H:%M:%S')}}"

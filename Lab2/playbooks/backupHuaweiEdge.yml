@@ -1,0 +1,26 @@
+---
+- name: depoloy stable config to EDGE-SARATOV
+  hosts: huaweiEDGE
+  gather_facts: false
+  vars:
+    path_config: "playbooks/config/{{ inventory_hostname }}.cfg"
+  pre_tasks:
+    - name: check config exists
+      ansible.builtin.stat:
+        path: "{{ path_config }}"
+      delegate_to: localhost
+      register: config
+    - name: print if no config
+      ansible.builtin.debug:
+        msg: "Come on. You missed config. You path must be:{{path_config}}. Please, add {{inventory_hostname}}.cfg to the directory))"
+      when: not config.stat.exists
+  tasks:
+    - name: upload config 
+      ansible.netcommon.net_put:
+        src: "{{ path_config }}"
+        dest: cfcard:/
+        protocol: scp
+      when: config.stat.exists
+
+
+    

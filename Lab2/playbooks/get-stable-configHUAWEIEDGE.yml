@@ -1,0 +1,13 @@
+- name: depoloy stable config to EDGE-SARATOV
+  hosts: huaweiEDGE
+  gather_facts: false
+  vars:
+    path_config: "playbooks/config/{{inventory_hostname}}.cfg"
+
+  tasks:
+    - name: get stable config
+      ansible.netcommon.net_get:
+        src: "cfcard:vrpcfg.cfg"
+        dest: "{{path_config}}"
+        protocol: scp
+
