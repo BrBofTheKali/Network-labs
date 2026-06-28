@@ -1,7 +1,7 @@
 # 🌐 Network Labs
 
 ![Labs](https://img.shields.io/badge/Labs-1-blue)
-![Status](https://img.shields.io/badge/Status-Rest--2month-yellow)
+![Status](https://img.shields.io/badge/Status-Rest-yellow)
 
 Hands-on network labs emulating real-world ISP and enterprise scenarios.
 
@@ -19,7 +19,7 @@ Hands-on network labs emulating real-world ISP and enterprise scenarios.
 ## 🛠️ Lab Environment
 
 - **Platform:** GNS3, EVE-NG
-- **Router images:**  EcoRouter, Cisco IOS XE, MirkoTik 
+- **Router images:**  EcoRouter, Cisco IOS XE, MirkoTik, Huawei VRP 
 
 ---
 
@@ -45,8 +45,14 @@ Each lab includes:
     │   ├── screenshots/       # Topology, tests, routing tables
     │   ├── running-configs/   # Running configurations
     │   ├── troubles/1/        # Known Issues
-    │   └── ...
-    ├── Lab2/                  # In progress
+    ├── Lab2/                  # lab 2 
+    │   ├── a                  # Lab 2, version a - IS-IS underlay
+    │   ├── inventory          # list hosts and group_vars
+    │   ├── playbooks          # Basic playbooks(get actual config, restore stable version(backup)
+    │   ├── README-RUS.md      # Russian description(temporary unavailable)
+    │   ├── ansible.cfg        # Basic config for ansible-playbooks
+    │   ├── IPAM.md            # IP address management(tables)
+    │   ├── routing-register.md # information about L3 routing(IS-IS, BGP and etc.)
     └── README.md              # This file
 
 
