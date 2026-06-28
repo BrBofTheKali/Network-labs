@@ -1,6 +1,6 @@
 ---
 - name: depoloy stable config to EDGE-SARATOV
-  hosts: huaweiEDGE
+  hosts: EDGE-SARATOV
   gather_facts: false
   vars:
     path_config: "playbooks/config/{{ inventory_hostname }}.cfg"
@@ -18,9 +18,26 @@
     - name: upload config 
       ansible.netcommon.net_put:
         src: "{{ path_config }}"
-        dest: cfcard:/
-        protocol: scp
+        dest: config-get/
+        protocol: sftp
       when: config.stat.exists
+    - name: load configuration
+      ansible.netcommon.cli_command:
+        command: |
+          cd config-get/
+          system-view
+          load configuration file {{hostname_inventory}}.cfg replace
+    - name: add file to startup
+      ansible.netcommon.cli_command:
+        command:|
+        cd
+        save vrpcfg.cfg
+        y
+        y
+    - name: output
+      ansible.builtin.debug:
+        msg: "You loaded {{hostname_inventory}}.cfg"
+
 
 
     
