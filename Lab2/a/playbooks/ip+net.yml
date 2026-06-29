@@ -74,7 +74,7 @@
         command: |
           save backup_{{timestamp}}.cfg
           y
-    - name: deploy config 
+    - name: deploy config
       block:
 
         - name: add  NET
@@ -119,12 +119,13 @@
               # drop old IPv4
               undo ip add
               ip add {{IPv4}}
-              #skip warning
-              quit
+              commit
 
         - name: print difference
           ansible.netcommon.cli_command:
-            command: "display current-configuration interface Ethernet {{interface}}"
+            command: |
+              display current-configuration interface Ethernet {{interface}}
+              display isis interface
           register: diff_output
 
         - name: print that was changed
