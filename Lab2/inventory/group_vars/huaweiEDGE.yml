@@ -1,8 +1,0 @@
----
-#use network_cli
-ansible_connection: ansible.netcommon.network_cli
-ansible_network_os: ce
-ansible_password: "1qaz!QAZ1qaz"
-ansible_host_key_checking: false
-#ingore rsa-1
-#ansible_ssh_common_args: '-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa'
