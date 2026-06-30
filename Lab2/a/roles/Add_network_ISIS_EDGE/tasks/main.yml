@@ -1,0 +1,169 @@
+---
+- name: Get timestamp
+  ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
+  delegate_to: localhost
+  register: ts
+  changed_when: false # false - never "changed" bc it isn't a configuration, it's pre_task on EVE-NG host
+
+- name: Get IPv4
+  ansible.builtin.shell: |
+    awk -F'|' '/{{ inventory_hostname }}/&&/{{ neighbor }}/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/IPAM.md
+  delegate_to: localhost
+  register: v4
+  changed_when: false
+
+- name: Get IPv6
+  ansible.builtin.shell: |
+    awk -F'|' '/{{ inventory_hostname }}/&&/{{ neighbor }}/{gsub(/ /,"",$6); print $6; exit}' /root/github/Network-labs/Lab2/IPAM.md
+  delegate_to: localhost
+  register: v6
+  changed_when: false
+
+- name: Get interface
+  ansible.builtin.shell: |
+    awk -F'|' '/{{ inventory_hostname }}/&&/{{ neighbor }}/{gsub(/ /,"",$3); sub(/^e/,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/IPAM.md
+  delegate_to: localhost
+  register: intf
+  changed_when: false
+
+- name: Get NET
+  ansible.builtin.shell: |
+    awk -F'|' '/EDGE-SARATOV/{gsub(/ /,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/routing-register.md
+  delegate_to: localhost
+  register: net
+  changed_when: false
+- name: Get level
+  ansible.builtin.shell: |
+    awk -F'|' '/EDGE-SARATOV/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/routing-register.md
+  delegate_to: localhost
+  register: lvl
+  changed_when: false
+
+- name: Set facts
+  ansible.builtin.set_fact: # set vars after start playbook
+    timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
+    ipv4_first: "{{ v4.stdout | trim }}" #need to convert
+    IPv6: "{{ v6.stdout | trim }}"
+    interface: "{{ intf.stdout | trim }}"
+    NET: "{{ net.stdout | trim }}"
+    level: "{{lvl.stdout | trim}}"
+
+- name: Build IPv4 for Huawei #convert var ipv4 to IP mask(IPv4_first is IP/m)
+  ansible.builtin.set_fact:
+    IPv4: "{{ ipv4_first | ansible.utils.ipaddr('address') }} {{ ipv4_first | ansible.utils.ipaddr('netmask') }}"
+
+- name: Validate all vars
+  ansible.builtin.assert:
+    that:
+      - ipv4_first | length > 0
+      - IPv4 != 'False False' #utils return false or IP mask(our case)
+      - IPv6 | length > 0
+      - interface | length > 0
+      - NET | length > 0
+      - level is match('(?i)level-.*') # (?i) ignore register. Mathcing level-...
+    fail_msg: "EMPTY or BROKEN variable! Check files and filters." #msg if fail
+    success_msg: "All variables OK" #msg if true
+- name: debug_var #display vars
+  ansible.builtin.debug:
+    msg:
+      - "IPv4: {{IPv4}}"
+      - "IPv6: {{IPv6}}"
+      - "NET: {{NET}}"
+      - "level: {{level}}"
+
+- name: create_backup
+  ansible.netcommon.cli_command:
+    command: |
+      save backup_{{timestamp}}.cfg
+      y
+- name: deploy config 
+  block:
+    - name: add  NET
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          isis 1
+          network-entity {{NET}}
+          is-level {{level}}
+          #commit here enable isis on the interface in next block
+          commit
+           quit
+    - name: set IPv6
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          interface Ethernet {{interface}}
+          undo shutdown
+          ipv6 enable
+          undo ipv6 add
+          #drop old IPv6
+          ipv6 add {{IPv6}}
+          isis enable 1
+          commit
+          # to enable p2p-connection(31 mask must be p2p interface)
+          quit
+
+    - name: enable p2p isis
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          interface Ethernet {{interface}}
+          isis circuit-type p
+          #set p2p
+          quit
+
+    - name: Add IPv4
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          interface Ethernet {{interface}}
+          # drop old IPv4
+          undo ip add
+          ip add {{IPv4}}
+          #skip warning
+          quit
+
+    - name: print difference
+      ansible.netcommon.cli_command:
+        command: | 
+          display current-configuration interface Ethernet {{interface}}
+          display isis interface
+      register: diff_output
+
+    - name: print that was changed
+      ansible.builtin.debug:
+        msg: "{{diff_output.stdout_lines}}"
+
+    - name: ask to me
+      ansible.builtin.pause:
+        prompt: "Commit?(yes/no)"
+      register: answer
+
+    - name: commit if yes
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          commit
+          return
+          save vrpcfg.cfg
+          y
+          y
+      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+
+    - name: clear conf if no
+      ansible.netcommon.cli_command:
+        command: |
+          system-view
+          clear configuration candidate
+          load configuration file backup_timestamp.cfg replace
+          commit
+      when: answer.user_input | lower != "yes"
+      ignore_errors: true #insurance if someone breaks
+
+  rescue:
+    - name: rollback to backup
+      ansible.netcommon.cli_command:
+        command: |
+          system-view    
+          load configuration file backup_{{timestamp}}.cfg replace
+          commit

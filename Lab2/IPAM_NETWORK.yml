@@ -1,0 +1,132 @@
+routers:
+  - hostname: EDGE-SARATOV
+    interface: e1/0/0
+    to: inet
+    ipv4: 192.168.1.0/24
+    ipv6: not supported
+
+  - hostname: EDGE-SARATOV
+    interface: e1/0/1
+    to: CORE-SARATOV
+    ipv4: 203.0.113.0/31
+    ipv6: 2001:db8:0000::/127
+
+  - hostname: CORE-SARATOV
+    interface: e4
+    to: EDGE-SARATOV
+    ipv4: 203.0.113.0/31
+    ipv6: 2001:db8:0000::0/127
+
+  - hostname: CORE-SARATOV
+    interface: e4
+    to: EDGE-SARATOV
+    ipv4: 198.51.100.0/24
+    ipv6: 2001:db8:0001::/64
+
+  - hostname: PE-KIROVSKIY
+    interface: e1/0/0
+    to: CORE-SARATOV
+    ipv4: 198.51.100.0/31
+    ipv6: 2001:db8:0001::/127
+
+  - hostname: PE-VOLGSKIY
+    interface: e1/0/3
+    to: CORE-SARATOV
+    ipv4: 198.51.100.2/31
+    ipv6: 2001:db8:0001::/127
+
+  - hostname: PE-KIROVSKIY
+    interface: e1/0/1
+    to: PE-VOLGSKIY
+    ipv4: 198.51.100.4/31
+    ipv6: 2001:db8:0001::4/127
+
+  - hostname: PE-VOLGSKIY
+    interface: e1/0/2
+    to: PE-KIROVSKIY
+    ipv4: 198.51.100.4/31
+    ipv6: 	2001:db8:0001::4/127
+
+  - hostname: PE-KIROVSKIY
+    interface: diff 
+    to: CPE
+    ipv4: 198.51.100.8/29
+    ipv6: not supported
+
+  - hostname: PE-VOLGSKIY
+    interface: diff
+    to: CPE
+    ipv4: 198.51.100.16/28
+    ipv6: not supported
+
+  - hostname: CPE-5
+    interface: eth1
+    to: PE-KIROVSKIY
+    ipv4: 198.51.100.10/30
+    ipv6: not supported
+
+  - hostname: CPE-7
+    interface: eth1
+    to: PE-KIROVSKIY
+    ipv4: 198.51.100.14/30
+    ipv6: not supported
+
+  - hostname: CPE-4
+    interface: eth1
+    to: PE-VOLGSKIY
+    ipv4: 198.51.100.18/30
+    ipv6: not supported
+
+  - hostname: CPE-6
+    interface: eth1
+    to: PE-VOLGSKIY
+    ipv4: 198.51.100.22/30
+    ipv6: not supported
+
+  - hostname: CPE-5
+    interface: eth2
+    to: default-gateway
+    ipv4: 10.0.0.0/24
+    ipv6: not supported
+
+  - hostname: CPE-7
+    interface: eth2
+    to: default-gateway
+    ipv4: 10.0.0.0/24
+    ipv6: not supported
+
+  - hostname: CPE-4
+    interface: eth2
+    to: default-gateway
+    ipv4: 10.0.1.0/24
+    ipv6: not supported
+
+  - hostname: CPE-4
+    interface: eth2
+    to: default-gateway
+    ipv4: 10.0.1.0/24
+    ipv6: not supported
+
+  - hostname: EDGE-SARATOV
+    interface: loopback0
+    to: internal
+    ipv4: 192.0.2.129/32
+    ipv6: not supported
+
+  - hostname: CORE-SARATOV
+    interface: loopback0
+    to: internal
+    ipv4: 192.0.2.130/32
+    ipv6: not supported
+
+  - hostname: PE-KIROVSKIY
+    interface: loopback0
+    to: internal
+    ipv4: 192.0.2.131/32
+    ipv6: not supported
+
+  - hostname: PE-VOLGSKIY
+    interface: loopback0
+    to: internal
+    ipv4: 192.0.2.132/32
+    ipv6: not supported

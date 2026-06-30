@@ -5,4 +5,4 @@
     neighbor: CORE-SARATOV #help to find IP and interface in IPAM.md
   
   roles:
-    - set_IP_NET_Role_EDGE # stage 1 for Edge-SARATOV
+    - set_IP_NET_Role_EDGE # stage 1 for Edge-SARATOV 

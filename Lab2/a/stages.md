@@ -2,6 +2,7 @@
 <details><summary></summary>
 1. Set IP and NET and Role, enable p2p on the routers 
 
+2. Add network to routers
 
 2. Set wide-metrics and metric cost, hello interval, bfd enable  
 
