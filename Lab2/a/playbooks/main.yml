@@ -1,0 +1,8 @@
+- name: SET IP+NET
+  hosts: EDGE-SARATOV
+  gather_facts: false #always!
+  vars:
+    neighbor: CORE-SARATOV #help to find IP and interface in IPAM.md
+  
+  roles:
+    - set_IP_NET_Role_EDGE # stage 1 for Edge-SARATOV
