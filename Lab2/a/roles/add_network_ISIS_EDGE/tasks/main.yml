@@ -1,7 +1,7 @@
 ---
 - name: load IPAM_NETWORK to anounce IS-IS/BGP
   ansible.builtin.include_vars:
-    file: "/workspaces/Network-labs/Lab2/IPAM_NETWORK.yml"
+    file: "/root/github/Network-labs/Lab2/IPAM_NETWORK.yml"
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
   delegate_to: localhost
@@ -57,7 +57,7 @@
   loop: "{{IPv6_list}}"
 - name: interace list
   ansible.builtin.set_fact:
-    interface: "{{list | map(attribute='interface') | list}}" # list interface with IP
+    interface: "{{list | map(attribute='interface') | reject('equalto', 'loopback0') | map('regex_replace', '^e', ' ') | list}}" # list interface with IP
 
 
 - name: create_backup
@@ -65,15 +65,16 @@
     command: |
       save backup_{{timestamp}}.cfg
       y
-- name: deploy config 
+- name: deploy config
   block:
     - name: enable interface to IS-IS
-      ansible.netcommon.ce_config:
-      command: |
-        isis enable 1
-      parents: "interface {{item}}"
+      community.network.ce_config:
+        lines:
+          - "isis enable 1"
+          - "isis circuit-level level-2"
+        parents:
+          - "interface Ethernet {{item}}"
       loop: "{{interface}}"
-      
 
     - name: print difference
       ansible.netcommon.cli_command:
