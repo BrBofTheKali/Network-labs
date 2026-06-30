@@ -155,7 +155,7 @@
         command: |
           system-view
           clear configuration candidate
-          load configuration file backup_timestamp.cfg replace
+          load configuration file backup_{{timestamp}}.cfg replace
           commit
       when: answer.user_input | lower != "yes"
       ignore_errors: true #insurance if someone breaks
@@ -167,3 +167,6 @@
           system-view    
           load configuration file backup_{{timestamp}}.cfg replace
           commit
+    - name: delete backup
+      ansible.netcommon.cli_command:
+        command: "delete /unreserver /quiet backup_{{timestamp}}.cfg"
