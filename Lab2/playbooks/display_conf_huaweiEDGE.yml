@@ -1,6 +1,6 @@
 ---
 - name: Gathering full display configuration
-  hosts: EDGE-SARATOV
+  hosts: huaweiEDGE
   gather_facts: false #always!
   vars:
     # lookup - request to another. Pipe - do command (date our case)
@@ -16,6 +16,6 @@
       ansible.builtin.copy:
         content: "{{output.stdout}}" #output - variable. stdout - standard out from CLI
         # destination folder(absolute path)
-        dest: "/root/github/Network-labs/Lab2/playbooks/{{inventory_hostname}}_{{timestamp}}_config_.xml"
-      # action make localhost, not router(we make file on EVE-NG) 
+        dest: "/root/github/Network-labs/Lab2/playbooks/sh-run/{{inventory_hostname}}_{{timestamp}}_config_.txt"
+      # action do localhost, not router(we make file on EVE-NG) 
       delegate_to: localhost

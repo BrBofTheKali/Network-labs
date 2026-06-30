@@ -1,6 +1,6 @@
 ---
 - name: depoloy stable config to EDGE-SARATOV
-  hosts: EDGE-SARATOV
+  hosts: huaweiEDGE
   gather_facts: false
   vars:
     path_config: "config/{{inventory_hostname | trim}}.cfg"
