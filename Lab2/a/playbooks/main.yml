@@ -1,8 +1,24 @@
 - name: SET IP+NET
-  hosts: CORE-SARATOV
+  hosts: all
   gather_facts: false #always!
   vars:
     neighbor: CORE-SARATOV #help to find IP and interface in IPAM.md
   
-  roles:
-    - set_IP_NET_ROLE_CORE
+  tasks:
+    # START=====EDGE-BLOCK===========
+    - name: 1) set IP_NET_ROLE_EDGE # 1 - stage 1
+      ansible.builtin.include_role:
+        name: set_IP_NET_ROLE_EDGE
+      when: inventory_hostname in groups['huaweiEDGE']
+    - name: 2) add_NETWORK_ISIS_ROLE_EDGE
+      ansible.builtin.include_role:
+        name: add_NETWORK_ISIS_ROLE_EDGE
+      when: inventory_hostname in groups['huaweiEDGE']
+    # END=======EDGE-BLOCK===========
+
+    # START=====CORE-BLOCK===========
+    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
+      ansible.builtin.include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_CORE
+      when: inventory_hostname in groups['ecorouter']
+    # END=======CORE-BLOCK===========
