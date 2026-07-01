@@ -1,6 +1,6 @@
 !Software Version V800R011C00SPC607B607
-!Last configuration was updated at 2026-06-27 16:19:28+00:00
-!Last configuration was saved at 2026-06-27 14:39:52+00:00
+!Last configuration was updated at 2026-06-29 13:06:23+00:00 by huawei
+!Last configuration was saved at 2026-06-29 13:06:28+00:00 by huawei
 #
 sysname EDGE-SARATOV
 #
@@ -44,9 +44,15 @@ aaa
 #
 license
 #
+isis 1
+ is-level level-2
+ network-entity 49.0064.1920.0000.2129.00
+#
 interface Ethernet1/0/0
  undo shutdown
  ip address 192.168.1.7 255.255.255.0
+ isis enable 1
+ isis circuit-level level-2
  dcn
  dcn mode vlan
 #
@@ -57,6 +63,11 @@ interface Ethernet1/0/0.4094
 #
 interface Ethernet1/0/1
  undo shutdown
+ ipv6 enable
+ ip address 203.0.113.1 255.255.255.254
+ ipv6 address 2001:DB8::1/127
+ isis enable 1
+ isis circuit-level level-2
  dcn
  dcn mode vlan
 #
@@ -164,10 +175,15 @@ dcn
 lldp enable
 #
 stelnet server enable
+sftp server enable
+scp server enable
 snetconf server enable
+sftp max-sessions 10
+sftp server default-directory cfcard:
 ssh user huawei
 ssh user huawei authentication-type password
 ssh user huawei service-type all
+ssh user huawei sftp-directory cfcard:
 ssh server ip-block disable
 ssh authorization-type default aaa
 #

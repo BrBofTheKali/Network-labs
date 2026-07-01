@@ -1,3 +1,0 @@
-ansible_connection: ansible.netcommon.network_cli
-ansible_network_ios: cisco.ios.ios
-ansible_become: true

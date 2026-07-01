@@ -1,0 +1,65 @@
+!
+no service password-encryption
+!
+hw mgmt ip 192.168.255.1/24
+hw mgmt ipv6 fe80::1e87:76ff:fe41:0/64
+!
+bgp extended-asn-cap 
+!
+ip vrf management
+!
+ipv6 unicast-routing
+!
+class-map default
+!
+security none
+!
+security none vrf management
+!
+security ipv6 default
+!
+security ipv6 none vrf management
+!
+mpls propagate-ttl
+mpls label mode per-vrf
+mpls exp stack-size all
+!
+ip domain-lookup
+filter-map optimize
+filter-map policy optimize
+!
+!
+ip pim register-rp-reachability
+!
+ip route 192.168.1.0/24 203.0.113.1
+!
+line con 0
+line vty 0 800
+!
+port te0
+ mtu 9728
+!
+port te1
+ mtu 9728
+!
+port te2
+ mtu 9728
+ service-instance e3
+  encapsulation untagged
+!
+port te3
+ mtu 9728
+!
+interface e3
+ ip mtu 1500
+ connect port te2 service-instance e3
+ ip address 203.0.113.0/31
+!
+arp request-interval 1
+arp request-number 3
+arp expiration-period 5
+arp solicitation-rate 2
+arp ip-collision-time 8
+arp incomplete-time 60
+!
+end

@@ -14,6 +14,6 @@
 
     - name: save to file
       ansible.builtin.copy:
-        content: "{{output.stdout[0]}}" # ios_command return json with \n instead of whitespace 
+        content: "{{output.stdout | join('\n')}}" # ios_command return json with \n instead of whitespace 
         dest: "/root/github/Network-labs/Lab2/playbooks/sh-run/{{inventory_hostname}}_{{timestamp}}_config_.txt"
       delegate_to: localhost
