@@ -1,7 +1,7 @@
 ---
-- name: load IPAM_NETWORK to anounce IS-IS/BGP
-  ansible.builtin.include_vars:
-    file: "/root/github/Network-labs/Lab2/IPAM_NETWORK.yml"
+#- name: load IPAM_NETWORK to anounce IS-IS/BGP
+#  ansible.builtin.include_vars:
+#    file: "/root/github/Network-labs/Lab2/IPAM_NETWORK.yml"
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
   delegate_to: localhost
@@ -41,15 +41,14 @@
   ansible.builtin.debug:
     msg: "list:{{item}}"
   loop: "{{list}}"
-- name: interace list
 
 
 
-#- name: create_backup !!!!!!!!!!!!!!!!!!!NEED TO IMPROVE AND CONTACT WITH DEVELOPER!!!!!!!!!!!!!!!!!!!
-#  ciso.ios.ios_config:
-#    lines: |
-#      save backup_{{timestamp}}.cfg
-#      y
+- name: create backup
+  ansible.netcommon.cli_command:
+    command: |
+      save backup_{{timestamp}}.cfg
+      y
 - name: deploy config
   block:
     - name: enable NET isis
@@ -102,7 +101,7 @@
 
     - name: print difference
       ciso.ios.ios_command:
-        commands:  
+        commands: 
           - sh ip int brief
           - sh isis interface
       register: diff_output
