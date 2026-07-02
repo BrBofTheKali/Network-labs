@@ -54,11 +54,12 @@
 - name: deploy config
   block:
     - name: enable NET isis
-      cisco.ios.ios_config:
+      ecorouter.ecorouteros.ecorouteros_config:
         lines:
-          - "router isis 1"
           - "net {{NET}}"
           - "is-type circuit-level {{LEVEL}}"
+        parents: "router isis 1"
+      
 
     - name: enable NET and IP on interface without loopback when ipv6 supported #loopback require interface.loopback0
       cisco.ios.ios_config:

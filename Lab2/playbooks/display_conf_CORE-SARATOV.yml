@@ -7,9 +7,9 @@
 
   tasks:
     - name: Gathering
-      cisco.ios.ios_command:
-        commands:
-          - show running-config
+      ecorouter.ecorouteros.ecorouteros_fact:
+        gather_subset:
+          - config
       register: output
 
     - name: save to file
