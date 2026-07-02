@@ -6,13 +6,9 @@
   
   tasks:
     # START=====EDGE-BLOCK===========
-    - name: 1) set IP_NET_ROLE_EDGE # 1 - stage 1
+    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
       ansible.builtin.include_role:
-        name: set_IP_NET_ROLE_EDGE
-      when: inventory_hostname in groups['huaweiEDGE']
-    - name: 2) add_NETWORK_ISIS_ROLE_EDGE
-      ansible.builtin.include_role:
-        name: add_NETWORK_ISIS_ROLE_EDGE
+        name: set_IP_IS-IS_NETWORK_ROLE_PE
       when: inventory_hostname in groups['huaweiEDGE']
     # END=======EDGE-BLOCK===========
 
@@ -22,3 +18,10 @@
         name: set_IP_IS-IS_NETWORK_ROLE_CORE
       when: inventory_hostname in groups['ecorouter']
     # END=======CORE-BLOCK===========
+
+    # START=====PE-BLOCK============
+    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
+      ansible.builtin.include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_PE
+      when: inventory_hostname in groups['huaweiPE']
+    # END=======PE-BLOCK============
