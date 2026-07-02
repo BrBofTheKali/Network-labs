@@ -3,21 +3,21 @@
   gather_facts: false #always!
   vars:
     neighbor: CORE-SARATOV #help to find IP and interface in IPAM.md
- 
-  tasks:
-    # START=====EDGE-BLOCK===========
-    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_EDGE
-      ansible.builtin.include_role:
-        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
-      when: inventory_hostname in groups['huaweiEDGE']
-    # END=======EDGE-BLOCK===========
 
-#    # START=====CORE-BLOCK===========
-#    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
+  tasks:
+#    # START=====EDGE-BLOCK===========
+#    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_EDGE
 #      ansible.builtin.include_role:
-#        name: set_IP_IS-IS_NETWORK_ROLE_CORE
-#      when: inventory_hostname in groups['ecorouter']
-#    # END=======CORE-BLOCK===========
+#        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
+#      when: inventory_hostname in groups['huaweiEDGE']
+#    # END=======EDGE-BLOCK===========
+
+    # START=====CORE-BLOCK===========
+    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
+      ansible.builtin.include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_CORE
+      when: inventory_hostname in groups['ecorouter']
+    # END=======CORE-BLOCK===========
 
 #    # START=====PE-BLOCK============
 #   - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE

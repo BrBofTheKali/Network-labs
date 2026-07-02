@@ -17,30 +17,30 @@
   ansible.builtin.shell: |
     awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/routing-register.md
   delegate_to: localhost
-  register: NET
+  register: net
   changed_when: false
 
 - name: Get level
   ansible.builtin.shell: |
     awk -F'|' '/EDGE-SARATOV/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/routing-register.md
   delegate_to: localhost
-  register: LEVEL
+  register: level
   changed_when: false
 
 
 - name: Set facts
-  ansible.builtin.set_fact: 
+  ansible.builtin.set_fact:
     timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
-
+    NET: "{{net.stdout_lines[0] | trim}}"
+    LEVEL: "{{level.stdout_lines[0] | trim}}"
 - name: set number of loopback
   ansible.builtin.set_fact:
      number_loopback: "0"
 
 - name: debug_list
   ansible.builtin.debug:
-    msg: "list:{{item}}"
+    msg: "list: {{item}}"
   loop: "{{list}}"
-- name: interace list
 
 - name: deploy config
   block:
@@ -48,12 +48,13 @@
       ecorouter.ecorouteros.ecorouteros_config:
         lines:
           - "net {{NET}}"
-          - "is-type circuit-level {{LEVEL}}"
-        parents: "router isis 1"
-      
+          - "is-type {{LEVEL}}"
+        parents:
+          - "router isis 1"
+
 
     - name: enable NET and IP on interface without loopback when ipv6 supported #loopback require interface.loopback0
-      cisco.ios.ios_config:
+      ecorouter.ecorouteros.ecorouteros_config:
         lines:
           - "isis network point-to-point"
           - "ip add {{item.ipv4}}"
@@ -63,7 +64,7 @@
           - "description 'to {{item.to}}''"
         parents: "interface {{item.interface}}"
       loop: "{{list}}"
-      when: 
+      when:
         - item.interface != "loopback0"
         - item.ipv6 != "not supported"
 
@@ -94,15 +95,15 @@
       when: item.interface == "loopback0"
 
     - name: print difference
-      ciso.ios.ios_command:
-        commands:  
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
           - sh ip int brief
           - sh isis interface
       register: diff_output
 
     - name: print that was changed
       ansible.builtin.debug:
-        msg: "{{diff_output.stdout_lines}}"
+        msg: "{{diff_output.stdout}}"
 
     - name: ask to me
       ansible.builtin.pause:
@@ -110,17 +111,16 @@
       register: answer
 
     - name: commit if yes
-      ciso.ios.ios_command:
+      ecorouter.ecorouteros.ecorouteros_config:
         commands: write
       when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
 
     - name: clear conf if no
-      ansible.netcommon.cli_command:
-        command: |
-          system-view
-          clear configuration candidate
-          load configuration file backup_{{timestamp}}.cfg replace
-          commit
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - exit
+          - reload
+          - y
       when: answer.user_input | lower != "yes"
       ignore_errors: true #insurance if someone breaks
 
@@ -135,22 +135,22 @@
           - "exit"
           - "reload"
           - "n"
-      register: diff_output 
-    
+      register: diff_output
+
     - name: display difference
       ansible.builtin.debug:
         msg: "{{diff_output.stdout_lines[0]}}"
 
     - name: answer
       ansible.builtin.pause:
-        promt: "Reload?(yes/no)"
-      answer: reload_answer
+        prompt: "Reload?(yes/no)"
+      register: reload_answer
 
     - name: rollback to backup
       ecorouter.ecorouteros.ecorouteros_config:
-        lines: 
-          - "reload"
-          - "y"
+        lines:
+          - reload
+          - y
       when: reload_answer | lower == "yes"
 
     - name: message if no
