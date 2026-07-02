@@ -1,7 +1,8 @@
 ---
 - name: load IPAM_NETWORK to anounce IS-IS/BGP
   ansible.builtin.include_vars:
-    file: "root/github/Network-labs/Lab2/IPAM_NETWORK.yml"
+    file: "/root/github/Network-labs/Lab2/IPAM_IP.yml"
+
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
   delegate_to: localhost
@@ -22,20 +23,25 @@
   ansible.builtin.shell: |
     awk -F'|' '/EDGE-SARATOV/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/routing-register.md
   delegate_to: localhost
-  register: LEVEL
+  register: level
   changed_when: false
 
 - name: Get NET
   ansible.builtin.shell: |
     awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/routing-register.md
   delegate_to: localhost
-  register: NET
+  register: net
   changed_when: false
 
-- name: set number of loopback
-  ansible.builtin.shell: "echo {{list.item}} | rev | cut -c 1"
-  register: number_loopback
-  when: list.item == "loopback0"
+
+- name: get NET, LEVEL(stdout)
+  ansible.builtin.set_fact:
+    NET: "{{ net.stdout | trim}}"
+    LEVEL: "{{ level.stdout | trim}}"
+
+- name: set loopback number
+  ansible.builtin.set_fact:
+    number_loopback: "0"
 
 - name: create_backup
   ansible.netcommon.cli_command:
@@ -50,7 +56,7 @@
         lines:
           - "net {{NET}}"
           - "is-level {{LEVEL}}"
-        parents: 
+        parents:
           - "isis 1"
 
     - name: enable IPv6 on ethernet
@@ -58,11 +64,12 @@
         lines:
           - "undo shutdown"
           - "ipv6 enable"
-          - "ipv6 add {{list.ipv6}}"
+          - "undo ipv6 add"
+          - "ipv6 add {{item.ipv6}}"
         parents:
           - "interface Ethernet {{item.interface}}"
       loop: "{{list}}"
-      when: list.ipv6 != "not supported"
+      when: item.ipv6 != "not supported"
 
     - name: enable interface IS-IS + p2p
       community.network.ce_config:
@@ -73,40 +80,41 @@
         parents:
           - "interface Ethernet {{item.interface}}"
       loop: "{{list}}"
-      when: list.interface != "loopback0"
+      when: item.interface != "loopback0"
 
     - name: enable IPv4 on ethernet
       community.network.ce_config:
         lines:
-          - "ip add {{ item.ipv4 | ansible.utils.ipaddr('address') }} {{ item.ipv4 | ansible.utils.ipaddr('netmask') }}"
-        parents:
-          - interface Ethernet {{item.interface}}
-        loop: "{{list}}"
-        when:
-          - list.interface != "loopback0"
+          - "undo ip add"
+          - "ip add {{item.ipv4 | ansible.utils.ipaddr('address')}} {{item.ipv4 | ansible.utils.ipaddr('netmask')}}"
+        parents: "interface Ethernet {{item.interface}}"
+      loop: "{{list}}"
+      when:
+        - item.interface != "loopback0"
+        - item.ipv4 != "192.168.1.7/24"
 
     - name: enable IP+NET on loopback
       community.network.ce_config:
         lines:
+          - "undo ip add"
           - "ip add {{ item.ipv4 | ansible.utils.ipaddr('address') }} {{ item.ipv4 | ansible.utils.ipaddr('netmask') }}"
           - "isis enable 1"
           - "isis circuit-level {{LEVEL}}"
         parents:
-          - interface loopback {{ numer_loopback }}
-        loop: "{{list}}"
-        when:
-          - list.interface == "loopback0"
-          - list.ipv6 == "not supported" # loopback now do not support IPv6, mb future it will be realized
+          - interface loopback {{ number_loopback }}
+      loop: "{{list}}"
+      when:
+          - item.interface == "loopback0"
+          - item.ipv6 == "not supported" # loopback now do not support IPv6, mb future it will be realized
 
     - name: get ISIS interface
       ansible.netcommon.cli_command:
-        command: | 
-          display isis interface
+        command: "display isis interface"
       register: isis_interface
 
     - name: print is-is
       ansible.builtin.debug:
-        msg: "{{isis_interface.stdout[0]}}"
+        msg: "{{isis_interface.stdout_lines}}"
 
     - name: get interface
       ansible.netcommon.cli_command:
@@ -116,7 +124,7 @@
 
     - name: print interface
       ansible.builtin.debug:
-        msg: "{{settings_interface.stdout[0]}}"
+        msg: "{{settings_interface.stdout_lines}}"
 
     - name: ask to me
       ansible.builtin.pause:

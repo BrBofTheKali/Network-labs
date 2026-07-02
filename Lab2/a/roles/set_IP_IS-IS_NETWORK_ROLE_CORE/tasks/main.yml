@@ -1,7 +1,8 @@
 ---
 - name: load IPAM_NETWORK to anounce IS-IS/BGP
   ansible.builtin.include_vars:
-    file: "/root/github/Network-labs/Lab2/IPAM_NETWORK.yml"
+    file: "/root/github/Network-labs/Lab2/IPAM_IP.yml"
+
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
   delegate_to: localhost
@@ -83,10 +84,10 @@
           - "description to {{item.to}}"
         parents: "interface {{item.interface}}"
       loop: "{{list}}"
-      when: 
+      when:
         - item.interface != "loopback0"
         - item.ipv6 == "not supported"
-  
+
     - name: loopback settings
       cisco.ios.ios_config:
         lines:
