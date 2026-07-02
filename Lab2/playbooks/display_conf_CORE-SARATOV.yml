@@ -7,13 +7,13 @@
 
   tasks:
     - name: Gathering
-      ecorouter.ecorouteros.ecorouteros_fact:
+      ecorouter.ecorouteros.ecorouteros_facts: # give list!!!
         gather_subset:
           - config
       register: output
 
     - name: save to file
       ansible.builtin.copy:
-        content: "{{output.stdout[0]}}" # ios_command return json with \n instead of whitespace 
+        content: "{{output.ansible_facts.ansible_net_config}}" # ansible_facts.ansible_net_config transform to normal view; facts return json 
         dest: "/root/github/Network-labs/Lab2/playbooks/sh-run/{{inventory_hostname}}_{{timestamp}}_config_.txt"
       delegate_to: localhost
