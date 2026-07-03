@@ -22,7 +22,7 @@
 
 - name: Get level
   ansible.builtin.shell: |
-    awk -F'|' '/EDGE-SARATOV/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/routing-register.md
+    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/routing-register.md
   delegate_to: localhost
   register: level
   changed_when: false
@@ -50,7 +50,6 @@
           - "is-type {{LEVEL}}"
         parents:
           - "router isis 1"
-
 
     - name: enable NET and IP on interface without loopback when ipv6 supported #loopback require interface.loopback0
       ecorouter.ecorouteros.ecorouteros_config:
@@ -100,7 +99,7 @@
           - "encapsulation untagged"
         parents:
           - "port {{item.port}}"
-          - "service instance {{item.interface}}"
+          - "service-instance {{item.interface}}"
       loop: "{{list}}"
       when:
         -  item.interface != "loopback0"
