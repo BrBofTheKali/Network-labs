@@ -12,7 +12,7 @@ routers:
     ipv6: 2001:db8:0000::1/127
 
   - hostname: CORE-SARATOV
-    interface: e4
+    interface: e3
     to: EDGE-SARATOV
     ipv4: 203.0.113.0/31
     ipv6: 2001:db8:0000::/127

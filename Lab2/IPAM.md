@@ -30,7 +30,7 @@
 | ------------ | --------- | --------------- | ---------------- | -------------------- |
 | EDGE-SARATOV | e1/0/0    | inet            | 192.168.1.7/24   | not supported        |
 | EDGE-SARATOV | e1/0/1    | CORE-SARATOV    | 203.0.113.1/31   | 2001:db8:0000::1/127 |
-| CORE-SARATOV | e4        | TO EDGE-SARATOV | 203.0.113.0/31   | 2001:db8:0000::2/127 |
+| CORE-SARATOV | e3        | TO EDGE-SARATOV | 203.0.113.0/31   | 2001:db8:0000::2/127 |
 | CORE-SARATOV | e1        | PE-KIROVSKIY    | 198.51.100.0/31  | 2001:db8:0001::0/127 |
 | CORE-SARATOV | e2        | PE-VOLGSKIY     | 198.51.100.2/31  | 2001:db8:0001::2/127 |
 | PE-KIROVSKIY | e1/0/0    | CORE-SARATOV    | 198.51.100.1/31  | 2001:db8:0001::0/127 |
