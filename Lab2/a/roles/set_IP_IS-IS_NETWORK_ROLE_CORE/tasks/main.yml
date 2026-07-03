@@ -86,28 +86,28 @@
         lines:
           - "isis network point-to-point"
           - "ip add {{item.ipv4}}"
-          - "ipv6 add {{item.ipv6}}"
           - "ip router isis 1"
           - "ipv6 router isis 1"
           - "description to BGP peering"
         parents: "interface loopback.{{number_loopback}}"
       loop: "{{list}}"
-      when: item.interface == "loopback0"
+      when:
+        -  item.interface == "loopback0"
 
     - name: print difference
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - sh ip int brief
-          - sh isis interface
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "sh ip int brief"
+          - "sh isis interface"
       register: diff_output
 
     - name: print that was changed
       ansible.builtin.debug:
-        msg: "{{diff_output.stdout}}"
+        msg: "{{diff_output.stdout_lines}}"
 
     - name: ask to me
       ansible.builtin.pause:
-        prompt: "Commit?(yes/no)"
+        prompt: "Commit? NO - reload(yes/no)"
       register: answer
 
     - name: commit if yes
@@ -115,14 +115,14 @@
         commands: write
       when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
 
-    - name: clear conf if no
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - exit
-          - reload
-          - y
-      when: answer.user_input | lower != "yes"
-      ignore_errors: true #insurance if someone breaks
+       # NEED TO FIND A NORMAL SOLUTION!
+#    - name: reload prompt
+#      ecorouter.ecorouteros.ecorouteros_command: # need to improve this moment, very bad solution
+#        commands: "reload"
+#        prompt:
+#          - "reboot system (y/n):"
+#        answer: "y"
+#      when: answer.user_input | lower == "no"
 
   rescue:
     - name: display warning
@@ -130,11 +130,9 @@
         msg: "Someting broken or you want to backup. Need to reload router manualy!"
 
     - name: get difference
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - "exit"
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
           - "reload"
-          - "n"
       register: diff_output
 
     - name: display difference
@@ -147,14 +145,14 @@
       register: reload_answer
 
     - name: rollback to backup
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - reload
-          - y
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "reload"
+          - "y"
       when: reload_answer | lower == "yes"
 
     - name: message if no
       ansible.builtin.debug:
-        msg: "Okay, reload canceled. Be carefull and check difference in your configs" 
+        msg: "Okay, reload canceled. Be carefull and check difference in your configs"
       when: reload_answer | lower == "no"
 
