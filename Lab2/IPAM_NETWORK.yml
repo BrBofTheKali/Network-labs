@@ -13,12 +13,14 @@ routers:
 
   - hostname: CORE-SARATOV
     interface: e3
+    port: te2
     to: EDGE-SARATOV
     ipv4: 203.0.113.0/31
     ipv6: 2001:db8:0000::0/127
 
   - hostname: CORE-SARATOV
     interface: e4
+    port: te3
     to: EDGE-SARATOV
     ipv4: 198.51.100.0/24
     ipv6: 2001:db8:0001::/64

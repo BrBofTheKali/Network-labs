@@ -27,7 +27,6 @@
   register: level
   changed_when: false
 
-
 - name: Set facts
   ansible.builtin.set_fact:
     timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
@@ -93,6 +92,18 @@
       loop: "{{list}}"
       when:
         -  item.interface == "loopback0"
+
+    - name: connect port to interface
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "connect ip int {{item.interface}}"
+          - "encapsulation untagged"
+        parents:
+          - "port {{item.port}}"
+          - "service instance {{item.interface}}"
+      loop: "{{list}}"
+      when:
+        -  item.interface != "loopback0"
 
     - name: print difference
       ecorouter.ecorouteros.ecorouteros_command:
