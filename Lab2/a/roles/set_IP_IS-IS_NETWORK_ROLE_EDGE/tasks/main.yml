@@ -107,6 +107,19 @@
           - item.interface == "loopback0"
           - item.ipv6 == "not supported" # loopback now do not support IPv6, mb future it will be realized
 
+    - name: set static route
+      community.network.ce_command:
+        commands:
+          - "ip route-static 0.0.0.0 0.0.0.0 192.168.1.1"
+      when: inventory_hostname == "EDGE-SARATOV" # insurance against copy to PE roles
+    
+    - name: add DG to LSP L2
+      community.network.ce_cofnig:
+        lines:
+          - "default-route-advertise level-1-2"
+        parents: "isis 1"
+      when: inventory_hostname == "EDGE-SARATOV" # insurance against copy to PE roles
+
     - name: get ISIS interface
       ansible.netcommon.cli_command:
         command: "display isis interface"
