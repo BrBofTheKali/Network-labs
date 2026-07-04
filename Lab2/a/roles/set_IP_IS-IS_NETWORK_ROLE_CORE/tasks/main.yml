@@ -15,14 +15,14 @@
 
 - name: Get NET
   ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/routing-register.md
+    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/IS-IS/NET_ROLE.md
   delegate_to: localhost
   register: net
   changed_when: false
 
 - name: Get level
   ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/routing-register.md
+    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/IS-IS/NET_ROLE.md
   delegate_to: localhost
   register: level
   changed_when: false
