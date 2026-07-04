@@ -1,0 +1,71 @@
+routers:
+  - hostname: EDGE-SARATOV
+    interface: Ethernet 1/0/0
+    bandwidth: 100G
+    metric: wide
+    cost: 10
+  - hostname: EDGE-SARATOV
+    interface: Ethernet 1/0/1
+    bandwidth: 100G
+    metric: wide
+    cost: 10
+
+  - hostname: EDGE-SARATOV
+    interface: e3
+    bandwidth: 100G
+    metric: wide
+    cost: 10
+  - hostname: EDGE-SARATOV
+    interface: e1
+    bandwidth: 50G
+    metric: wide
+    cost: 20
+  - hostname: EDGE-SARATOV
+    interface: e2
+    bandwidth: 50G
+    metric: wide
+    cost: 20
+
+  - hostname: PE-KIROVSKIY
+    interface: Ethernet 1/0/1
+    bandwidth: 50G
+    metric: wide
+    cost: 20
+  - hostname: PE-VOLGSKIY
+    interface: Ethernet 1/0/3
+    bandwidth: 50G
+    metric: wide
+    cost: 20
+
+  - hostname: PE-KIROVKSIY
+    interface: Ethernet 1/0/0
+    bandwidth: 10G
+    metric: wide
+    cost: 100
+  - hostname: PE-VOLGSKIY
+    interface: Ethernet 1/0/2
+    bandwidth: 100G
+    metric: wide
+    cost: 100
+
+  - hostname: PE-KIROVSKIY
+    interface: Ethernet 1/0/3
+    bandwidth: 1G
+    metric: wide
+    cost: 1000
+  - hostname: PE-KIROVSKIY
+    interface: Ethernet 1/0/2
+    bandwidth: 1G
+    metric: wide
+    cost: 1000
+
+  - hostname: PE-VOLGSKIY
+    interface: Ethernet 1/0/1
+    bandwidth: 100G
+    metric: wide
+    cost: 1000
+  - hostname: PE-VOLGSKIY
+    interface: Ethernet 1/0/0
+    bandwidth: 100G
+    metric: wide
+    cost: 1000
