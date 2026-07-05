@@ -58,17 +58,10 @@
 Out-of-band IP
  
 **IPv4/IPv6 address for routers**
-| Hostname     | Interface   | To              | IPv4 address      |
-| ------------ | ----------- | --------------- | ----------------- |
-| EDGE-SARATOV | e1/0/1      | CORE-SARATOV    | 172.16.100.0/31   |
-| CORE-SARATOV | e3          | EDGE-SARATOV    | 172.16.100.1/31   |
-| CORE-SARATOV | e1          | PE-KIROVSKIY    | 172.16.100.2/31   |
-| CORE-SARATOV | e2          | PE-VOLGSKIY     | 172.16.100.4/31   |
-| PE-KIROVSKIY | e1/0/0      | CORE-SARATOV    | 172.16.100.3/31   |
-| PE-VOLGSKIY  | e1/0/3      | CORE-SARATOV    | 172.16.100.5/31   |
-| PE-KIROVSKIY | e1/0/1      | PE-VOLGSKIY     | 172.16.100.6/31   |
-| PE-VOLGSKIY  | e1/0/2      | PE-KIROVSKIY    | 172.16.100.7/31   |
-| EDGE-SARATOV | loopback100 | internal        | 172.16.100.100/32 |
-| CORE-SARATOV | loopback100 | internal        | 172.16.100.101/32 |
-| PE-KIROVSKIY | loopback100 | internal        | 172.16.100.102/32 |
-| PE-VOLGSKIY  | loopback100 | internal        | 172.16.100.103/32 |
+| Hostname     | Interface           | To              | IPv4 address      |
+| ------------ | ------------------- | --------------- | ----------------- |
+| EDGE-SARATOV | e1/0/2.100          | e0/0            | 172.16.100.1/24   |
+| CORE-SARATOV | e4.100              | e0/1            | 172.16.100.2/24   |
+| PE-KIROVSKIY | e1/0/4.100          | e0/2            | 172.16.100.3/24   |
+| PE-VOLGSKIY  | e1/0/4.100          | e0/3            | 172.16.100.4/24   |
+

@@ -1,0 +1,23 @@
+routers:
+  - hostname: EDGE-SARATOV
+    interface: e1/0/2.100
+    to: e0/0
+    ipv4: 172.16.100.1/24
+
+  - hostname: CORE-SARATOV
+    interface: e4.100
+    port: te3
+    to: e0/1
+    ipv4: 172.16.100.2/24
+
+
+  - hostname: PE-KIROVSKIY
+    interface: e1/0/4.100
+    to: e0/2
+    ipv4: 172.16.100.3/24
+
+  - hostname: PE-VOLGSKIY
+    interface: e1/0/4.100
+    to: e0/3
+    ipv4: 172.16.100.4/24
+
