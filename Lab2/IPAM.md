@@ -30,7 +30,7 @@
 | ------------ | --------- | --------------- | ---------------- | -------------------- |
 | EDGE-SARATOV | e1/0/0    | inet            | 192.168.1.7/24   | not supported        |
 | EDGE-SARATOV | e1/0/1    | CORE-SARATOV    | 203.0.113.1/31   | 2001:db8:0000::1/127 |
-| CORE-SARATOV | e3        | TO EDGE-SARATOV | 203.0.113.0/31   | 2001:db8:0000::2/127 |
+| CORE-SARATOV | e3        | EDGE-SARATOV    | 203.0.113.0/31   | 2001:db8:0000::2/127 |
 | CORE-SARATOV | e1        | PE-KIROVSKIY    | 198.51.100.0/31  | 2001:db8:0001::0/127 |
 | CORE-SARATOV | e2        | PE-VOLGSKIY     | 198.51.100.2/31  | 2001:db8:0001::2/127 |
 | PE-KIROVSKIY | e1/0/0    | CORE-SARATOV    | 198.51.100.1/31  | 2001:db8:0001::0/127 |
@@ -52,5 +52,23 @@
 | EDGE-SARATOV | loopback0 | internal        | 192.0.2.129/32    | not supported        |
 | CORE-SARATOV | loopback0 | internal        | 192.0.2.130/32    | not supported        |
 | PE-KIROVSKIY | loopback0 | internal        | 192.0.2.131/32    | not supported        |
-| PE-VOLGSKIY  | loopback0 | internal        | 192.0.2.132/32    | not supported        |  
+| PE-VOLGSKIY  | loopback0 | internal        | 192.0.2.132/32    | not supported        |
 
+
+Out-of-band IP
+ 
+**IPv4/IPv6 address for routers**
+| Hostname     | Interface   | To              | IPv4 address      |
+| ------------ | ----------- | --------------- | ----------------- |
+| EDGE-SARATOV | e1/0/1      | CORE-SARATOV    | 172.16.100.0/31   |
+| CORE-SARATOV | e3          | EDGE-SARATOV    | 172.16.100.1/31   |
+| CORE-SARATOV | e1          | PE-KIROVSKIY    | 172.16.100.2/31   |
+| CORE-SARATOV | e2          | PE-VOLGSKIY     | 172.16.100.4/31   |
+| PE-KIROVSKIY | e1/0/0      | CORE-SARATOV    | 172.16.100.3/31   |
+| PE-VOLGSKIY  | e1/0/3      | CORE-SARATOV    | 172.16.100.5/31   |
+| PE-KIROVSKIY | e1/0/1      | PE-VOLGSKIY     | 172.16.100.6/31   |
+| PE-VOLGSKIY  | e1/0/2      | PE-KIROVSKIY    | 172.16.100.7/31   |
+| EDGE-SARATOV | loopback100 | internal        | 172.16.100.100/32 |
+| CORE-SARATOV | loopback100 | internal        | 172.16.100.101/32 |
+| PE-KIROVSKIY | loopback100 | internal        | 172.16.100.102/32 |
+| PE-VOLGSKIY  | loopback100 | internal        | 172.16.100.103/32 |
