@@ -10,17 +10,17 @@ routers:
     metric: wide
     cost: 10
 
-  - hostname: EDGE-SARATOV
+  - hostname: CORE-SARATOV
     interface: e3
     bandwidth: 100G
     metric: wide
     cost: 10
-  - hostname: EDGE-SARATOV
+  - hostname: CORE-SARATOV
     interface: e1
     bandwidth: 50G
     metric: wide
     cost: 20
-  - hostname: EDGE-SARATOV
+  - hostname: CORE-SARATOV
     interface: e2
     bandwidth: 50G
     metric: wide

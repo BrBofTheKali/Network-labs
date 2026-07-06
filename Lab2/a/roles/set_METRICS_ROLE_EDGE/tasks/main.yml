@@ -1,7 +1,7 @@
 ---
-- name: load IPAM_NETWORK to anounce IS-IS/BGP
+- name: load metrics
   ansible.builtin.include_vars:
-    file: "/root/github/Network-labs/Lab2/IPAM_IP.yml"
+    file: "/root/github/Network-labs/Lab2/IS-IS/METRICS.yml"
 
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
@@ -11,37 +11,11 @@
 
 - name: Get general list # we're taking all string where hostname = inventory_hostname(loop). See. IPAM_NETWORK.yml
   ansible.builtin.set_fact:
-    # default([]) - create empety var; + [...] - add string; combine - update dictory; take field interface and change "e" to empety
-    list: "{{ list  | default([]) + [item | combine({'interface': item.interface | regex_replace('^e', '')})] }}"
-  loop: "{{ routers | selectattr('hostname', 'equalto', inventory_hostname) | list }}"
+    list: "{{ routers | selectattr('hostname', 'equalto', inventory_hostname) | list }}"
 
 - name: Set facts
   ansible.builtin.set_fact: 
     timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
-
-- name: Get level
-  ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' /root/github/Network-labs/Lab2/IS-IS/NET_ROLE.md
-  delegate_to: localhost
-  register: level
-  changed_when: false
-
-- name: Get NET
-  ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' /root/github/Network-labs/Lab2/IS-IS/NET_ROLE.md
-  delegate_to: localhost
-  register: net
-  changed_when: false
-
-
-- name: get NET, LEVEL(stdout)
-  ansible.builtin.set_fact:
-    NET: "{{ net.stdout | trim}}"
-    LEVEL: "{{ level.stdout | trim}}"
-
-- name: set loopback number
-  ansible.builtin.set_fact:
-    number_loopback: "0"
 
 - name: create_backup
   ansible.netcommon.cli_command:
@@ -51,74 +25,20 @@
 - name: deploy config
   block:
 
-    - name: enable IS-IS+NET
+    - name: enable wide metric
       community.network.ce_config:
         lines:
-          - "net {{NET}}"
-          - "is-level {{LEVEL}}"
+          - cost-style wide
         parents:
-          - "isis 1"
+          - "isis "
 
-    - name: enable IPv6 on ethernet
+    - name: enable metrics on the interfaces
       community.network.ce_config:
         lines:
-          - "undo shutdown"
-          - "ipv6 enable"
-          - "undo ipv6 add"
-          - "ipv6 add {{item.ipv6}}"
+          - "isis cost {{item.cost}}"
         parents:
           - "interface Ethernet {{item.interface}}"
       loop: "{{list}}"
-      when: item.ipv6 != "not supported"
-
-    - name: enable interface IS-IS + p2p
-      community.network.ce_config:
-        lines:
-          - "isis enable 1"
-          - "isis circuit-level {{LEVEL}}"
-          - "isis circuit-type p2p"
-        parents:
-          - "interface Ethernet {{item.interface}}"
-      loop: "{{list}}"
-      when: item.interface != "loopback0"
-
-    - name: enable IPv4 on ethernet
-      community.network.ce_config:
-        lines:
-          - "undo ip add"
-          - "ip add {{item.ipv4 | ansible.utils.ipaddr('address')}} {{item.ipv4 | ansible.utils.ipaddr('netmask')}}"
-        parents: "interface Ethernet {{item.interface}}"
-      loop: "{{list}}"
-      when:
-        - item.interface != "loopback0"
-        - item.ipv4 != "192.168.1.7/24"
-
-    - name: enable IP+NET on loopback
-      community.network.ce_config:
-        lines:
-          - "undo ip add"
-          - "ip add {{ item.ipv4 | ansible.utils.ipaddr('address') }} {{ item.ipv4 | ansible.utils.ipaddr('netmask') }}"
-          - "isis enable 1"
-          - "isis circuit-level {{LEVEL}}"
-        parents:
-          - interface loopback {{ number_loopback }}
-      loop: "{{list}}"
-      when:
-          - item.interface == "loopback0"
-          - item.ipv6 == "not supported" # loopback now do not support IPv6, mb future it will be realized
-
-    - name: set static route
-      community.network.ce_config:
-        lines:
-          - "ip route-static 0.0.0.0 0.0.0.0 192.168.1.1"
-      when: inventory_hostname == "EDGE-SARATOV" # insurance against copy to PE roles
-
-    - name: add DG to LSP L2
-      community.network.ce_config:
-        lines:
-          - "default-route-advertise level-1-2"
-        parents: "isis 1"
-      when: inventory_hostname == "EDGE-SARATOV" # insurance against copy to PE roles
 
     - name: get ISIS interface
       ansible.netcommon.cli_command:
