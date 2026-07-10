@@ -1,7 +1,7 @@
 ---
 - name: load metrics
   ansible.builtin.include_vars:
-    file: "/root/github/Network-labs/Lab2/IS-IS/METRICS.yml"
+    file: "{{ playbook_dir }}/../../IS-IS/METRICS.yml"
 
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
