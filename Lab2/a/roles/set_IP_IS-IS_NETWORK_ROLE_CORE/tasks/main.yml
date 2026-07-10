@@ -82,7 +82,6 @@
     - name: loopback settings
       ecorouter.ecorouteros.ecorouteros_config:
         lines:
-          - "isis network point-to-point"
           - "ip add {{item.ipv4}}"
           - "ip router isis 1"
           - "ipv6 router isis 1"
