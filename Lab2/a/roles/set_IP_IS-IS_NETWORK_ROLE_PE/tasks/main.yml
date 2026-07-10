@@ -128,8 +128,9 @@
 
     - name: ask to me
       ansible.builtin.pause:
-        prompt: "Commit?(yes/no)"
+        prompt: "Commit all host?(yes/no)"
       register: answer
+      run_once: true
 
     - name: commit if yes
       ansible.netcommon.cli_command:
@@ -140,7 +141,7 @@
           save vrpcfg.cfg
           y
           y
-      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+      when: hostvars[ansible_play_hosts_all[0]]['answer']['user_input'] | lower == "yes" # KLUDGE!!!!!!!!!
 
     - name: clear conf if no
       ansible.netcommon.cli_command:
@@ -149,7 +150,7 @@
           clear configuration candidate
           load configuration file backup_{{timestamp}}.cfg replace
           commit
-      when: answer.user_input | lower != "yes"
+      when: hostvars[ansible_play_hosts_all[0]]['answer']['user_input'] | lower == "no"
       ignore_errors: true #insurance if someone breaks
 
   rescue:
