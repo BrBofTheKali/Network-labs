@@ -13,21 +13,21 @@ routers:
 
   - hostname: CORE-SARATOV
     interface: e3
-    port: te2
+    port: ge2
     to: EDGE-SARATOV
     ipv4: 203.0.113.0/31
     ipv6: 2001:db8:0000::0/127
 
   - hostname: CORE-SARATOV
     interface: e1
-    port: te0
+    port: ge0
     to: PE-KIROVSKIY
     ipv4: 198.51.100.0/24
     ipv6: 2001:db8:0001::/64
 
   - hostname: CORE-SARATOV
     interface: e2
-    port: te1
+    port: ge1
     to: PE-VOLGSKIY
     ipv4: 198.51.100.2/31
     ipv6: 2001:db8:0001::2/127

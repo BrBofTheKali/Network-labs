@@ -6,7 +6,7 @@ routers:
 
   - hostname: CORE-SARATOV
     interface: e4.100
-    port: te3
+    port: ge3
     to: e0/1
     ipv4: 172.16.100.2/24
 
