@@ -33,7 +33,7 @@ routers:
     ipv6: 2001:db8:0001::2/127
 
   - hostname: PE-KIROVSKIY
-    interface: e1/0/0
+    interface: e1/0/1
     to: CORE-SARATOV
     ipv4: 198.51.100.0/31
     ipv6: 2001:db8:0001::/127
@@ -45,7 +45,7 @@ routers:
     ipv6: 2001:db8:0001::/127
 
   - hostname: PE-KIROVSKIY
-    interface: e1/0/1
+    interface: e1/0/0
     to: PE-VOLGSKIY
     ipv4: 198.51.100.4/31
     ipv6: 2001:db8:0001::4/127

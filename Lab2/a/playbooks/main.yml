@@ -13,11 +13,11 @@
     # END=======EDGE-BLOCK===========
 
     # START=====CORE-BLOCK===========
-#    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
-#      ansible.builtin.include_role:
-#        name: set_IP_IS-IS_NETWORK_ROLE_CORE
-#      when: inventory_hostname in groups['ecorouter']
-#    # END=======CORE-BLOCK===========
+    - name: 1, 2) set IP_IS-IS_NETWORK_ROLE_CORE
+      ansible.builtin.include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_CORE
+      when: inventory_hostname in groups['ecorouter']
+    # END=======CORE-BLOCK===========
 
     # START=====PE-BLOCK============
     - name: 1,2) set IP_IS-IS_NETWORK_ROLE_CORE
