@@ -12,7 +12,7 @@ Hands-on network labs emulating real-world ISP and enterprise scenarios.
 | Lab | Topic | Technologies | Status |
 |-----|-------|--------------|--------|
 | [Lab1](Lab1/README-RUS.md) | ISP Backbone: Saint-Petersburg — Moscow | BGP, IS-IS, IPv4/IPv6, Route-map, PAT | ✅ Complete |
-| Lab2a | IS-IS underlay in Saratov | Tunning IS-IS, IPv4/Pv6 | 🟡 In Progress |
+| [Lab1](Lab2/a) | IS-IS underlay in Saratov | Tunning IS-IS, IPv4/Pv6 | 🟡 In Progress |
 
 ---
 
@@ -51,8 +51,10 @@ Each lab includes:
     │   ├── playbooks          # Basic playbooks(get actual config, restore stable version(backup)
     │   ├── README-RUS.md      # Russian description(temporary unavailable)
     │   ├── ansible.cfg        # Basic config for ansible-playbooks
-    │   ├── IPAM.md            # IP address management(tables)
-    │   ├── routing-register.md # information about L3 routing(IS-IS, BGP and etc.)
+    │   ├── IPAM.md(.yml)      # IP address management(tables) and yml for ansible use
+    │   ├── IS-IS              # information about IS-IS routing
+    │   ├── IPAM_IP.yml        # information about usage IP for ansible
+    │   ├── IPAM_NETWORK.yml   # information about usage IP-segments for ansible(BGP and etc.)
     └── README.md              # This file
 
 
