@@ -1,37 +1,36 @@
-- name: SET IP+NET
-  hosts: all
+# START=====EDGE-BLOCK===========
+- name: Edge routers
+  hosts: huaweiEDGE
   gather_facts: false #always!
-
   tasks:
-    # START=====EDGE-BLOCK===========
-    - block:
-        - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
-          ansible.builtin.import_role:
-            name: set_IP_IS-IS_NETWORK_ROLE_EDGE
-        - name: 2) set METRICS_ROLE_EDGE
-          ansible.builtin.import_role:
-            name: set_METRICS_ROLE_EDGE
-      when: inventory_hostname in groups['huaweiEDGE']
-    # END=======EDGE-BLOCK===========
-
-    # START=====CORE-BLOCK===========
-    - block:
-        - name: 1) set IP_IS-IS_NETWORK_ROLE_CORE
-          ansible.builtin.import_role:
-            name: set_IP_IS-IS_NETWORK_ROLE_CORE
-        - name: 2) 2) set METRICS_ROLE_CORE
-          ansible.builtin.import_role:
-            name: set_METRICS_ROLE_CORE
-      when: inventory_hostname in groups['huaweiEDGE']
-    # END=======CORE-BLOCK===========
-
-    # START=====PE-BLOCK============
-    - block:
-        - name: 1) set IP_IS-IS_NETWORK_ROLE_PE
-          ansible.builtin.import_role:
-            name: set_IP_IS-IS_NETWORK_ROLE_PE
-        - name: 2) 2) set METRICS_ROLE_PE
-          ansible.builtin.import_role:
-            name: set_METRICS_ROLE_PE
-      when: inventory_hostname in groups['huaweiEDGE']
-    # END=======PE-BLOCK============
+    - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
+      include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
+    - name: 2) set METRICS_ROLE_EDGE
+      include_role:
+        name: set_METRICS_ROLE_EDGE
+# END=======EDGE-BLOCK===========
+# START=====CORE-BLOCK===========
+- name: Core routers
+  hosts: Core
+  gather_facts: false
+  tasks:
+    - name: 1) set IP_IS-IS_NETWORK_ROLE_CORE
+      include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_CORE
+    - name: 2) set METRICS_ROLE_CORE
+      include_role:
+        name: set_METRICS_ROLE_CORE
+# END=======CORE-BLOCK===========
+# START=====PE-BLOCK============
+- name: PE routers
+  hosts: huaweiPE
+  gather_facts: false
+  tasks:
+    - name: 1) set IP_IS-IS_NETWORK_ROLE_PE
+      include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_PE
+    - name: 2) set METRICS_ROLE_PE
+      include_role:
+        name: set_METRICS_ROLE_PE
+# END=======PE-BLOCK============
