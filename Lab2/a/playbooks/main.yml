@@ -6,10 +6,10 @@
     # START=====EDGE-BLOCK===========
     - block:
         - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
-          ansible.builtin.include_role:
+          ansible.builtin.import_role:
             name: set_IP_IS-IS_NETWORK_ROLE_EDGE
         - name: 2) set METRICS_ROLE_EDGE
-          ansible.builtin.include_role:
+          ansible.builtin.import_role:
             name: set_METRICS_ROLE_EDGE
       when: inventory_hostname in groups['huaweiEDGE']
     # END=======EDGE-BLOCK===========
@@ -17,10 +17,10 @@
     # START=====CORE-BLOCK===========
     - block:
         - name: 1) set IP_IS-IS_NETWORK_ROLE_CORE
-          ansible.builtin.include_role:
+          ansible.builtin.import_role:
             name: set_IP_IS-IS_NETWORK_ROLE_CORE
         - name: 2) 2) set METRICS_ROLE_CORE
-          ansible.builtin.include_role:
+          ansible.builtin.import_role:
             name: set_METRICS_ROLE_CORE
       when: inventory_hostname in groups['huaweiEDGE']
     # END=======CORE-BLOCK===========
@@ -28,10 +28,10 @@
     # START=====PE-BLOCK============
     - block:
         - name: 1) set IP_IS-IS_NETWORK_ROLE_PE
-          ansible.builtin.include_role:
+          ansible.builtin.import_role:
             name: set_IP_IS-IS_NETWORK_ROLE_PE
         - name: 2) 2) set METRICS_ROLE_PE
-          ansible.builtin.include_role:
+          ansible.builtin.import_role:
             name: set_METRICS_ROLE_PE
       when: inventory_hostname in groups['huaweiEDGE']
     # END=======PE-BLOCK============

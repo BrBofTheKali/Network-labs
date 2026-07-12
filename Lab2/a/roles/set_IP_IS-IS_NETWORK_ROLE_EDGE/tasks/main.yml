@@ -21,7 +21,7 @@
 
 - name: Get level
   ansible.builtin.shell: |
-    awk -F'|' '/{{inventroy_hostname}}/{gsub(/ /,"",$5); print $5; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
+    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
   delegate_to: localhost
   register: level
   changed_when: false
