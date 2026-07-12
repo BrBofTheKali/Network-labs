@@ -40,6 +40,15 @@
           - "interface Ethernet {{item.interface}}"
       loop: "{{list}}"
 
+    - name: set hello interval
+      community.network.ce_config:
+        lines:
+          - "isis timer hello 3"
+          - "isis timer holding 3"
+        parents:
+          - "interface Ethernet {{item.interface}}"
+      loop: "{{list}}"
+
     - name: get ISIS interface
       ansible.netcommon.cli_command:
         command: "display isis interface"

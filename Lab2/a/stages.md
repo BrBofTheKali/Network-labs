@@ -4,16 +4,16 @@
 
 2. Add network to routers
 
-2. Set wide-metrics and metric cost, hello interval, bfd enable  
+3. Set wide-metrics and metric cost, hello interval, passesive interface
 
 
-3. set domain and interface authentication      
+4. set domain and interface authentication      
 
 
-4. set fast convergance    
+5. set fast convergance +bfd   
 
 
-5. check work capacity   
+6. check work capacity   
 
 
 </details>   

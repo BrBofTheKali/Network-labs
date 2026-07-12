@@ -1,0 +1,73 @@
+---
+- name: load metrics
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../../IS-IS/METRICS.yml"
+
+- name: Get timestamp
+  ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
+  delegate_to: localhost
+  register: ts
+  changed_when: false # false - never "changed" bc it isn't a configuration, it's pre_task on EVE-NG host
+
+- name: Get general list # we're taking all string where hostname = inventory_hostname(loop). See. IPAM_NETWORK.yml
+  ansible.builtin.set_fact:
+    list: "{{ routers | selectattr('hostname', 'equalto', inventory_hostname) | list }}"
+
+- name: Set facts
+  ansible.builtin.set_fact: 
+    timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
+
+- name: deploy config
+  block:
+
+    - name: enable wide metric
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - metric-style wide
+        parents:
+          - "router isis 1"
+
+    - name: enable metrics on the interfaces
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "isis metric {{item.cost}}"
+        parents:
+          - "interface {{item.interface}}"
+      loop: "{{list}}"
+
+    - name: change hello-interval
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "isis hello-interval 3"
+          - "isis hello-multiplier 3" # 9 seconds = dead
+        parents:
+          - "interface {{item.interface}}"
+      loop: "{{list}}"
+
+    - name: get ISIS interface
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands: "show isis topology"
+      register: isis_interface
+
+    - name: print is-is
+      ansible.builtin.debug:
+        msg: "{{isis_interface.stdout_lines}}"
+
+
+    - name: ask to me
+      ansible.builtin.pause:
+        prompt: "Commit?(yes/no)"
+      register: answer
+
+    - name: commit if yes
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands: |
+          write
+      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+
+    - name: if no
+      ansible.builtin.debug:
+        msg: "Need to reload router"
+      when: answer.user_input | lower != "no"
+      ignore_errors: true #insurance if someone breaks
+
