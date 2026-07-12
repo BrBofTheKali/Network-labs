@@ -12,7 +12,7 @@ Hands-on network labs emulating real-world ISP and enterprise scenarios.
 | Lab | Topic | Technologies | Status |
 |-----|-------|--------------|--------|
 | [Lab1](Lab1/README-RUS.md) | ISP Backbone: Saint-Petersburg — Moscow | BGP, IS-IS, IPv4/IPv6, Route-map, PAT | ✅ Complete |
-| [Lab1](Lab2/a) | IS-IS underlay in Saratov | Tunning IS-IS, IPv4/Pv6 | 🟡 In Progress |
+| [Lab2](Lab2/a) | IS-IS underlay in Saratov | Tunning IS-IS, IPv4/Pv6 | 🟡 In Progress |
 
 ---
 
