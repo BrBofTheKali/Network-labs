@@ -94,7 +94,7 @@
     - name: connect port to interface
       ecorouter.ecorouteros.ecorouteros_config:
         lines:
-          - "encapsulation untag"
+          - "encapsulation untagged"
           - "connect ip int {{item.interface}}"
         parents:
           - "port {{item.port}}"
