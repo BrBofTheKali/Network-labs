@@ -37,7 +37,7 @@
         lines:
           - "isis cost {{item.cost}}"
         parents:
-          - "interface Ethernet {{item.interface}}"
+          - "interface {{item.interface}}"
       loop: "{{list}}"
 
     - name: set hello interval
@@ -46,7 +46,7 @@
           - "isis timer hello 3"
           - "isis timer holding 3"
         parents:
-          - "interface Ethernet {{item.interface}}"
+          - "interface  {{item.interface}}"
       loop: "{{list}}"
 
     - name: set passive interface on CPE
@@ -54,7 +54,7 @@
         lines:
           - "isis silent"
         parents:
-          - "interface Ethernet {{item.interface}}"
+          - "interface  {{item.interface}}"
       loop: "{{list}}"
       when: item.bandwidth == "1G"
 

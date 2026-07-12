@@ -28,7 +28,7 @@
     - name: enable wide metric
       community.network.ce_config:
         lines:
-          - cost-style wide
+          - "cost-style wide"
         parents:
           - "isis "
 
@@ -37,7 +37,7 @@
         lines:
           - "isis cost {{item.cost}}"
         parents:
-          - "interface Ethernet {{item.interface}}"
+          - "interface {{item.interface}}"
       loop: "{{list}}"
 
     - name: set hello interval
@@ -46,7 +46,7 @@
           - "isis timer hello 3"
           - "isis timer holding 3"
         parents:
-          - "interface Ethernet {{item.interface}}"
+          - "interface  {{item.interface}}"
       loop: "{{list}}"
 
     - name: get ISIS interface
