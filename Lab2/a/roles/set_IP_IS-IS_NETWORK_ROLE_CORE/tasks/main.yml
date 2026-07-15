@@ -36,6 +36,13 @@
   ansible.builtin.set_fact:
      number_loopback: "0"
 
+- name: check connecting port to interface
+  ecorouter.ecorouteros.ecorouteros_command:
+    commands:
+      "sh run | incl connect {{item.port}} service-instance {{item.interface}}"
+  loop: {{list}}
+  register: check_port_interface
+
 - name: debug_list
   ansible.builtin.debug:
     msg: "list: {{item}}"
@@ -95,13 +102,14 @@
       ecorouter.ecorouteros.ecorouteros_config:
         lines:
           - "encapsulation untagged"
-          - "connect ip int {{item.interface}}"
+          - "connect ip int {{item.item.interface}}"
         parents:
-          - "port {{item.port}}"
-          - "service-instance {{item.interface}}"
-      loop: "{{list}}"
+          - "port {{item.item.port}}"
+          - "service-instance {{item.item.interface}}"
+      loop: "{{check_port_interface.results}}"
       when:
-        -  item.interface != "loopback0"
+        -  item.item.interface != "loopback0"
+        -  item.stdout[0] == ""
 
     - name: print difference
       ecorouter.ecorouteros.ecorouteros_command:
