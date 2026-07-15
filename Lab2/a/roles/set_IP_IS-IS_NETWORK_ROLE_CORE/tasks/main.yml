@@ -39,8 +39,9 @@
 - name: check connecting port to interface
   ecorouter.ecorouteros.ecorouteros_command:
     commands:
-      "sh run | incl connect {{item.port}} service-instance {{item.interface}}"
-  loop: {{list}}
+      "sh run | incl connect port {{item.port}} service-instance {{item.interface}}"
+  loop: "{{list}}"
+  when: item.interface != "loopback0"
   register: check_port_interface
 
 - name: debug_list
