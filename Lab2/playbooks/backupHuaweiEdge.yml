@@ -1,49 +1,44 @@
 ---
-- name: depoloy stable config to EDGE-SARATOV
+- name: Depoloy stable config to EDGE-SARATOV
   hosts: huaweiEDGE
   gather_facts: false
   vars:
     path_config: "config/{{inventory_hostname | trim}}.cfg"
     ansible_network_cli_ssh_type: paramiko
   pre_tasks:
-      
-    - name: check config exists
+    - name: Check config exists
       ansible.builtin.command: "test -f {{ path_config }}"
       delegate_to: localhost
       register: config
       changed_when: false # it isn't a change +1
-      ignore_errors: true # check below 
-        
-    - name: print if no config
+      ignore_errors: true # check below
+
+    - name: Print if no config
       ansible.builtin.fail:
-        msg: "Come on. You missed config. You path must be:{{path_config}}. Please, add {{inventory_hostname}}.cfg to the directory))"
+        msg: "Come on. You missed config. You path must be:{{ path_config }}. Please, add {{ inventory_hostname }}.cfg to the directory))"
       when: config.rc !=0
       failed_when: true
   tasks:
-    - name: upload config
+    - name: Upload config
       ansible.netcommon.net_put:
         src: "{{ path_config }}"
         dest: config-get/
         protocol: scp
       when: config.rc == 0
-      
-    - name: load configuration
+
+    - name: Load configuration
       ansible.netcommon.cli_command:
         command: |
           cd config-get/
           system-view
-          load configuration file {{inventory_hostname}}.cfg replace
-    - name: add file to startup
+          load configuration file {{ inventory_hostname }}.cfg replace
+    - name: Add file to startup
       ansible.netcommon.cli_command:
         command: |
           cd
           save vrpcfg.cfg
           y
           y
-    - name: output
+    - name: Output
       ansible.builtin.debug:
-        msg: "You loaded {{inventory_hostname}}.cfg"
-
-
-
-    
+        msg: "You loaded {{ inventory_hostname }}.cfg"
