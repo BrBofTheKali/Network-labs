@@ -1,0 +1,176 @@
+---
+- name: load IPAM_NETWORK to anounce IS-IS/BGP
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../../IPAM_IP.yml"
+
+- name: Get timestamp
+  ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
+  delegate_to: localhost
+  register: ts
+  changed_when: false # false - never "changed" bc it isn't a configuration, it's pre_task on EVE-NG host
+
+- name: Get general list # we're taking all string where hostname = inventory_hostname. See. IPAM_NETWORK.yml
+  ansible.builtin.set_fact:
+    list: "{{routers| selectattr('hostname', 'equalto', inventory_hostname) | list}}"
+
+- name: Get NET
+  ansible.builtin.shell: |
+    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
+  delegate_to: localhost
+  register: net
+  changed_when: false
+
+- name: Get level
+  ansible.builtin.shell: |
+    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
+  delegate_to: localhost
+  register: level
+  changed_when: false
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
+    NET: "{{net.stdout_lines[0] | trim}}"
+    LEVEL: "{{level.stdout_lines[0] | trim}}"
+- name: set number of loopback
+  ansible.builtin.set_fact:
+     number_loopback: "0"
+
+- name: check connecting port to interface
+  ecorouter.ecorouteros.ecorouteros_command:
+    commands:
+      "sh run | incl connect port {{item.port}} service-instance {{item.interface}}"
+  loop: "{{list}}"
+  when: item.interface != "loopback0"
+  register: check_port_interface
+
+- name: debug_list
+  ansible.builtin.debug:
+    msg: "list: {{item}}"
+  loop: "{{list}}"
+
+- name: deploy config
+  block:
+    - name: enable NET isis
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "net {{NET}}"
+          - "is-type {{LEVEL}}"
+        parents:
+          - "router isis 1"
+
+    - name: enable NET and IP on interface without loopback when ipv6 supported #loopback require interface.loopback0
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "isis network point-to-point"
+          - "ip add {{item.ipv4}}"
+          - "ipv6 add {{item.ipv6}}"
+          - "ip router isis 1"
+          - "ipv6 router isis 1"
+          - "description 'to {{item.to}}''"
+        parents: "interface {{item.interface}}"
+      loop: "{{list}}"
+      when:
+        - item.interface != "loopback0"
+        - item.ipv6 != "not supported"
+
+    - name: enable NET and IP on interface without loopback when ipv6 not supported #loopback require interface.loopback0
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "isis network point-to-point"
+          - "ip add {{item.ipv4}}"
+          - "ip router isis 1"
+          - "description to {{item.to}}"
+        parents: "interface {{item.interface}}"
+      loop: "{{list}}"
+      when:
+        - item.interface != "loopback0"
+        - item.ipv6 == "not supported"
+
+    - name: loopback settings
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "ip add {{item.ipv4}}"
+          - "ip router isis 1"
+          - "ipv6 router isis 1"
+          - "description to BGP peering"
+        parents: "interface loopback.{{number_loopback}}"
+      loop: "{{list}}"
+      when:
+        -  item.interface == "loopback0"
+
+    - name: connect port to interface
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "encapsulation untagged"
+          - "connect ip int {{item.item.interface}}"
+        parents:
+          - "port {{item.item.port}}"
+          - "service-instance {{item.item.interface}}"
+      loop: "{{check_port_interface.results}}"
+      when:
+        -  item.item.interface != "loopback0"
+        -  item.stdout[0] == ""
+
+    - name: print difference
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "sh ip int brief"
+          - "sh isis interface"
+      register: diff_output
+
+    - name: print that was changed
+      ansible.builtin.debug:
+        msg: "{{diff_output.stdout_lines}}"
+
+    - name: ask to me
+      ansible.builtin.pause:
+        prompt: "Commit? NO - reload(yes/no)"
+      register: answer
+
+    - name: commit if yes
+      ecorouter.ecorouteros.ecorouteros_config:
+        commands: write
+      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+
+       # NEED TO FIND A NORMAL SOLUTION!
+#    - name: reload prompt
+#      ecorouter.ecorouteros.ecorouteros_command: # need to improve this moment, very bad solution
+#        commands: "reload"
+#        prompt:
+#          - "reboot system (y/n):"
+#        answer: "y"
+#      when: answer.user_input | lower == "no"
+
+  rescue:
+    - name: display warning
+      ansible.builtin.debug:
+        msg: "Someting broken or you want to backup. Need to reload router manualy!"
+
+    - name: get difference
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "reload"
+      register: diff_output
+
+    - name: display difference
+      ansible.builtin.debug:
+        msg: "{{diff_output.stdout_lines[0]}}"
+
+    - name: answer
+      ansible.builtin.pause:
+        prompt: "Reload?(yes/no)"
+      register: reload_answer
+
+    - name: rollback to backup
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "reload"
+          - "y"
+      when: reload_answer | lower == "yes"
+
+    - name: message if no
+      ansible.builtin.debug:
+        msg: "Okay, reload canceled. Be carefull and check difference in your configs"
+      when: reload_answer | lower == "no"
+
