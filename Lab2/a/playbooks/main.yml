@@ -1,15 +1,19 @@
 # START=====EDGE-BLOCK===========
-#- name: Edge routers
-#  hosts: huaweiEDGE
-#  gather_facts: false #always!
-#  tasks:
-#    - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
-#      include_role:
-#        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
-#    - name: 2) set METRICS_ROLE_EDGE
-#      include_role:
-#        name: set_METRICS_ROLE_EDGE
+- name: Edge routers
+  hosts: huaweiEDGE
+  gather_facts: false #always!
+  tasks:
+    - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
+      include_role:
+        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
+    - name: 2) set METRICS_ROLE_EDGE
+      include_role:
+        name: set_METRICS_ROLE_EDGE
+    - name: 3) set_AUTH_IS-IS_ROLE_EDGE
+      include_role:
+        name: set_AUTH_IS-IS_ROLE_EDGE
 # END=======EDGE-BLOCK===========
+
 # START=====CORE-BLOCK===========
 - name: Core routers
   hosts: Core
@@ -22,6 +26,7 @@
       include_role:
         name: set_METRICS_ROLE_CORE
 # END=======CORE-BLOCK===========
+
 # START=====PE-BLOCK============
 - name: PE routers
   hosts: huaweiPE

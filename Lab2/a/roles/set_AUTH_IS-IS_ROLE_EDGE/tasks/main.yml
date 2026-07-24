@@ -1,7 +1,11 @@
 ---
-- name: load IPAM_NETWORK to anounce IS-IS/BGP
+- name: Load IP+Interface
   ansible.builtin.include_vars:
     file: "{{ playbook_dir }}/../../IPAM_IP.yml"
+
+- name: Load auth password and method for IS-IS authentication
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../../IS-IS/auth_password.yml"
 
 - name: Get timestamp
   ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
@@ -16,135 +20,49 @@
   loop: "{{ routers | selectattr('hostname', 'equalto', inventory_hostname) | list }}"
 
 - name: Set facts
-  ansible.builtin.set_fact: 
+  ansible.builtin.set_fact:
     timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
 
-- name: Get level
-  ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
-  delegate_to: localhost
-  register: level
-  changed_when: false
 
-- name: Get NET
-  ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
-  delegate_to: localhost
-  register: net
-  changed_when: false
-
-
-- name: get NET, LEVEL(stdout)
-  ansible.builtin.set_fact:
-    NET: "{{ net.stdout | trim}}"
-    LEVEL: "{{ level.stdout | trim}}"
-
-- name: set loopback number
-  ansible.builtin.set_fact:
-    number_loopback: "0"
-
-- name: create_backup
+- name: Create_backup
   ansible.netcommon.cli_command:
     command: |
       save backup_{{timestamp}}.cfg
       y
-- name: deploy config
+- name: Deploy config
   block:
 
-    - name: enable IS-IS+NET
+    - name: Set password to Ecorouter
       community.network.ce_config:
         lines:
-          - "net {{NET}}"
-          - "is-level {{LEVEL}}"
+          - isis auth {{ auth_to_ecorouter_method }} cipher {{ auth_to_ecorouter_password }}
         parents:
-          - "isis 1"
+          - "interface Ethernet {{ item.interface }}"
+      loop: "{{ list | selectattr('to', 'equalto', 'CORE-SARATOV') | list }}"
 
-    - name: enable IPv6 on ethernet
+    - name: Set password to huawei
       community.network.ce_config:
         lines:
-          - "undo shutdown"
-          - "ipv6 enable"
-          - "undo ipv6 add"
-          - "ipv6 add {{item.ipv6}}"
+          - isis auth {{ auth_to_huawei_method }} key-id {{ auth_to_huawei_keyid }} cipher {{ auth_to_huawei_password }}
         parents:
-          - "interface Ethernet {{item.interface}}"
-      loop: "{{list}}"
-      when: item.ipv6 != "not supported"
+          - "interface Ethernet {{ item.interface }}"
+      loop: "{{ list | selectattr('to', 'ne', 'CORE-SARATOV') | list }}" # ne - not equalto
 
-    - name: enable interface IS-IS + p2p
-      community.network.ce_config:
-        lines:
-          - "isis enable 1"
-          - "isis circuit-level {{LEVEL}}"
-          - "isis circuit-type p2p"
-        parents:
-          - "interface Ethernet {{item.interface}}"
-      loop: "{{list}}"
-      when: item.interface != "loopback0"
-
-    - name: enable IPv4 on ethernet
-      community.network.ce_config:
-        lines:
-          - "undo ip add"
-          - "ip add {{item.ipv4 | ansible.utils.ipaddr('address')}} {{item.ipv4 | ansible.utils.ipaddr('netmask')}}"
-        parents: "interface Ethernet {{item.interface}}"
-      loop: "{{list}}"
-      when:
-        - item.interface != "loopback0"
-        - item.ipv4 != "192.168.1.7/24"
-
-    - name: enable IP+NET on loopback
-      community.network.ce_config:
-        lines:
-          - "undo ip add"
-          - "ip add {{ item.ipv4 | ansible.utils.ipaddr('address') }} {{ item.ipv4 | ansible.utils.ipaddr('netmask') }}"
-          - "isis enable 1"
-          - "isis circuit-level {{LEVEL}}"
-        parents:
-          - interface loopback {{ number_loopback }}
-      loop: "{{list}}"
-      when:
-          - item.interface == "loopback0"
-          - item.ipv6 == "not supported" # loopback now do not support IPv6, mb future it will be realized
-
-    - name: set static route
-      community.network.ce_config:
-        lines:
-          - "ip route-static 0.0.0.0 0.0.0.0 192.168.1.1"
-      when: inventory_hostname == "EDGE-SARATOV" # insurance against copy to PE roles
-
-    - name: add DG to LSP L2
-      community.network.ce_config:
-        lines:
-          - "default-route-advertise level-1-2"
-        parents: "isis 1"
-      when: inventory_hostname == "EDGE-SARATOV" # insurance against copy to PE roles
-
-    - name: get ISIS interface
+    - name: Get ISIS interface
       ansible.netcommon.cli_command:
         command: "display isis interface"
       register: isis_interface
 
-    - name: print is-is
+    - name: Print is-is
       ansible.builtin.debug:
-        msg: "{{isis_interface.stdout_lines}}"
+        msg: "{{ isis_interface.stdout_lines }}"
 
-    - name: get interface
-      ansible.netcommon.cli_command:
-        command: | 
-          display current interface
-      register: settings_interface
-
-    - name: print interface
-      ansible.builtin.debug:
-        msg: "{{settings_interface.stdout_lines}}"
-
-    - name: ask to me
+    - name: Ask to me
       ansible.builtin.pause:
         prompt: "Commit?(yes/no)"
       register: answer
 
-    - name: commit if yes
+    - name: Commit if yes
       ansible.netcommon.cli_command:
         command: |
           system-view
@@ -153,27 +71,26 @@
           save vrpcfg.cfg
           y
           y
-      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+      when: answer.user_input | lower == "yes"  # alwyas yes, not YeS, YES etc.
 
-    - name: clear conf if no
+    - name: Clear conf if no
       ansible.netcommon.cli_command:
-        command: |
+        command: 
           system-view
           clear configuration candidate
           load configuration file backup_{{timestamp}}.cfg replace
           commit
       when: answer.user_input | lower != "yes"
-      ignore_errors: true #insurance if someone breaks
 
   rescue:
-    - name: rollback to backup
+    - name: Rollback to backup
       ansible.netcommon.cli_command:
         command: |
-          system-view    
+          system-view
           load configuration file backup_{{timestamp}}.cfg replace
           commit
           quit
-    - name: delete backup
+    - name: Delete backup
       ansible.netcommon.cli_command:
         command: |
           delete /unreserved /quiet backup_{{timestamp}}.cfg
