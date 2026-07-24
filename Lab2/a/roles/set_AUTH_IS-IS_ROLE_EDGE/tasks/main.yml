@@ -46,7 +46,7 @@
           - isis auth {{ auth_to_huawei_method }} key-id {{ auth_to_huawei_keyid }} cipher {{ auth_to_huawei_password }}
         parents:
           - "interface Ethernet {{ item.interface }}"
-      loop: "{{ list | selectattr('to', 'ne', 'CORE-SARATOV') | list }}" # ne - not equalto
+      loop: "{{ list | rejectattr('to', 'in', ['CORE-SARATOV', 'internal']) | list }}"
 
     - name: Get ISIS interface
       ansible.netcommon.cli_command:
@@ -75,7 +75,7 @@
 
     - name: Clear conf if no
       ansible.netcommon.cli_command:
-        command: 
+        command: |
           system-view
           clear configuration candidate
           load configuration file backup_{{timestamp}}.cfg replace

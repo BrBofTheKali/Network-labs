@@ -38,4 +38,7 @@
     - name: 2) set METRICS_ROLE_PE
       include_role:
         name: set_METRICS_ROLE_PE
+    - name: 3) set_AUTH_IS-IS_ROLE_EDGE
+      include_role:
+        name: set_AUTH_IS-IS_ROLE_PE
 # END=======PE-BLOCK============
