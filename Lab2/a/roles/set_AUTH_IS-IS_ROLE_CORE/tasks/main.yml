@@ -13,104 +13,45 @@
   ansible.builtin.set_fact:
     list: "{{routers| selectattr('hostname', 'equalto', inventory_hostname) | list}}"
 
-- name: Get NET
-  ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$3); print $3; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
-  delegate_to: localhost
-  register: net
-  changed_when: false
+- name: Load auth password and method for IS-IS authentication
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../../IS-IS/auth_password.yml"
 
-- name: Get level
-  ansible.builtin.shell: |
-    awk -F'|' '/{{inventory_hostname}}/{gsub(/ /,"",$5); print $5; exit}' {{ playbook_dir }}/../../IS-IS/NET_ROLE.md
-  delegate_to: localhost
-  register: level
-  changed_when: false
 
-- name: Set facts
-  ansible.builtin.set_fact:
-    timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
-    NET: "{{net.stdout_lines[0] | trim}}"
-    LEVEL: "{{level.stdout_lines[0] | trim}}"
-- name: set number of loopback
-  ansible.builtin.set_fact:
-     number_loopback: "0"
-
-- name: check connecting port to interface
+- name: check that key-chain is exsist
   ecorouter.ecorouteros.ecorouteros_command:
-    commands:
-      "sh run | incl connect port {{item.port}} service-instance {{item.interface}}"
-  loop: "{{list}}"
-  when: item.interface != "loopback0"
-  register: check_port_interface
-
-- name: debug_list
+    commands: 
+      - "sh run | incl key chain "
+  register: "check_key-chain"
+- name: display warning to renew key-chain
   ansible.builtin.debug:
-    msg: "list: {{item}}"
-  loop: "{{list}}"
+    msg: "There are all key chain on the router. Do you want to renew it?(All password will be zeroed)\n{{check_key-chain}}"
+  when: check_key-chain | length > 0
+- name: ask me to clear key chain
+
+  ansible.builtin.pause:
+    prompt: "Clear key-chain?"
+  register: answer_key_chain
 
 - name: deploy config
   block:
-    - name: enable NET isis
+    - name: create key-chain
       ecorouter.ecorouteros.ecorouteros_config:
         lines:
-          - "net {{NET}}"
-          - "is-type {{LEVEL}}"
+          - "key-string {{ auth_to_huawei_password }}"
         parents:
-          - "router isis 1"
+          - "key chain IS-IS-{{ item.interface }}"
+          - "key 1"
+      loop: "{{ list }}"
 
-    - name: enable NET and IP on interface without loopback when ipv6 supported #loopback require interface.loopback0
+    - name: enable auth on interfaces
       ecorouter.ecorouteros.ecorouteros_config:
         lines:
-          - "isis network point-to-point"
-          - "ip add {{item.ipv4}}"
-          - "ipv6 add {{item.ipv6}}"
-          - "ip router isis 1"
-          - "ipv6 router isis 1"
-          - "description 'to {{item.to}}''"
-        parents: "interface {{item.interface}}"
-      loop: "{{list}}"
-      when:
-        - item.interface != "loopback0"
-        - item.ipv6 != "not supported"
-
-    - name: enable NET and IP on interface without loopback when ipv6 not supported #loopback require interface.loopback0
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - "isis network point-to-point"
-          - "ip add {{item.ipv4}}"
-          - "ip router isis 1"
-          - "description to {{item.to}}"
-        parents: "interface {{item.interface}}"
-      loop: "{{list}}"
-      when:
-        - item.interface != "loopback0"
-        - item.ipv6 == "not supported"
-
-    - name: loopback settings
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - "ip add {{item.ipv4}}"
-          - "ip router isis 1"
-          - "ipv6 router isis 1"
-          - "description to BGP peering"
-        parents: "interface loopback.{{number_loopback}}"
-      loop: "{{list}}"
-      when:
-        -  item.interface == "loopback0"
-
-    - name: connect port to interface
-      ecorouter.ecorouteros.ecorouteros_config:
-        lines:
-          - "encapsulation untagged"
-          - "connect ip int {{item.item.interface}}"
+          - "isis auth mode {{ auth_to_ecorouter_method }}"
+          - "isis auth key-chain IS-IS-{{ item.interface }}"
         parents:
-          - "port {{item.item.port}}"
-          - "service-instance {{item.item.interface}}"
-      loop: "{{check_port_interface.results}}"
-      when:
-        -  item.item.interface != "loopback0"
-        -  item.stdout[0] == ""
+          - "interface {{item.interface}}"
+      loop: "{{ list }}"
 
     - name: print difference
       ecorouter.ecorouteros.ecorouteros_command:
@@ -131,7 +72,7 @@
     - name: commit if yes
       ecorouter.ecorouteros.ecorouteros_config:
         commands: write
-      when: answer.user_input | lower == "yes" #alwyas yes, not YeS, YES etc.
+      when: answer.user_input | lower == "yes"  #alwyas yes, not YeS, YES etc.
 
        # NEED TO FIND A NORMAL SOLUTION!
 #    - name: reload prompt
@@ -141,6 +82,7 @@
 #          - "reboot system (y/n):"
 #        answer: "y"
 #      when: answer.user_input | lower == "no"
+  when: answer_key_chain.user_input | lower == "yes"
 
   rescue:
     - name: display warning
