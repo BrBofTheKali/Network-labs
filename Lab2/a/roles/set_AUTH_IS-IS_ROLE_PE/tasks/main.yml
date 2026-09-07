@@ -71,7 +71,7 @@
           save vrpcfg.cfg
           y
           y
-      when: answer.user_input | lower == "yes"  # alwyas yes, not YeS, YES etc.
+      when: answer | lower == "yes"  # alwyas yes, not YeS, YES etc.
 
     - name: Clear conf if no
       ansible.netcommon.cli_command:
@@ -80,7 +80,7 @@
           clear configuration candidate
           load configuration file backup_{{timestamp}}.cfg replace
           commit
-      when: answer.user_input | lower != "yes"
+      when: answer | lower != "yes"
 
   rescue:
     - name: Rollback to backup

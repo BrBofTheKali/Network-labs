@@ -40,6 +40,7 @@
           - "interface Ethernet {{ item.interface }}"
       loop: "{{ list | selectattr('to', 'equalto', 'CORE-SARATOV') | list }}"
 
+
     - name: Set password to huawei
       community.network.ce_config:
         lines:

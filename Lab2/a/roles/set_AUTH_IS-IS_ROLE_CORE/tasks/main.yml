@@ -20,15 +20,16 @@
 
 - name: check that key-chain is exsist
   ecorouter.ecorouteros.ecorouteros_command:
-    commands: 
+    commands:
       - "sh run | incl key chain "
-  register: "check_key-chain"
+  register: "check_key_chain"
+
 - name: display warning to renew key-chain
   ansible.builtin.debug:
-    msg: "There are all key chain on the router. Do you want to renew it?(All password will be zeroed)\n{{check_key-chain}}"
-  when: check_key-chain | length > 0
-- name: ask me to clear key chain
+    msg: "There are all key chain on the router. Do you want to renew it?(All password will be zeroed)\n{{check_key_chain}}"
+  when: check_key_chain | length > 0
 
+- name: ask me to clear key chain
   ansible.builtin.pause:
     prompt: "Clear key-chain?"
   register: answer_key_chain

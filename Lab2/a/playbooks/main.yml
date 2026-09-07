@@ -3,12 +3,12 @@
   hosts: huaweiEDGE
   gather_facts: false  #always!
   tasks:
-    - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
-      include_role:
-        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
-    - name: 2) set METRICS_ROLE_EDGE
-      include_role:
-        name: set_METRICS_ROLE_EDGE
+#    - name: 1) set IP_IS-IS_NETWORK_ROLE_EDGE
+#      include_role:
+#        name: set_IP_IS-IS_NETWORK_ROLE_EDGE
+#    - name: 2) set METRICS_ROLE_EDGE
+#      include_role:
+#        name: set_METRICS_ROLE_EDGE
     - name: 3) set_AUTH_IS-IS_ROLE_EDGE
       include_role:
         name: set_AUTH_IS-IS_ROLE_EDGE
@@ -19,12 +19,12 @@
   hosts: Core
   gather_facts: false
   tasks:
-    - name: 1) set IP_IS-IS_NETWORK_ROLE_CORE
-      include_role:
-        name: set_IP_IS-IS_NETWORK_ROLE_CORE
-    - name: 2) set METRICS_ROLE_CORE
-      include_role:
-        name: set_METRICS_ROLE_CORE
+#    - name: 1) set IP_IS-IS_NETWORK_ROLE_CORE
+#      include_role:
+#        name: set_IP_IS-IS_NETWORK_ROLE_CORE
+#    - name: 2) set METRICS_ROLE_CORE
+#      include_role:
+#        name: set_METRICS_ROLE_CORE
     - name: 3) set_AUTH_IS-IS_ROLE_CORE
       include_role:
         name: set_AUTH_IS-IS_ROLE_CORE
@@ -35,12 +35,12 @@
   hosts: huaweiPE
   gather_facts: false
   tasks:
-    - name: 1) set IP_IS-IS_NETWORK_ROLE_PE
-      include_role:
-        name: set_IP_IS-IS_NETWORK_ROLE_PE
-    - name: 2) set METRICS_ROLE_PE
-      include_role:
-        name: set_METRICS_ROLE_PE
+#    - name: 1) set IP_IS-IS_NETWORK_ROLE_PE
+#      include_role:
+#        name: set_IP_IS-IS_NETWORK_ROLE_PE
+#    - name: 2) set METRICS_ROLE_PE
+#      include_role:
+#        name: set_METRICS_ROLE_PE
     - name: 3) set_AUTH_IS-IS_ROLE_PE
       include_role:
         name: set_AUTH_IS-IS_ROLE_PE
