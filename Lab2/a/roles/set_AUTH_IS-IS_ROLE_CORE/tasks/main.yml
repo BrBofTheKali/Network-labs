@@ -26,7 +26,7 @@
 
 - name: display warning to renew key-chain
   ansible.builtin.debug:
-    msg: "There are all key chain on the router. Do you want to renew it?(All password will be zeroed)\n{{check_key_chain}}"
+    msg: "There are all key chain on the router. Do you want to renew it?(All password will be zeroed)\n{{check_key_chain.stdout_lines}}"
   when: check_key_chain | length > 0
 
 - name: ask me to clear key chain

@@ -61,6 +61,8 @@
       ansible.builtin.pause:
         prompt: "Commit?(yes/no)"
       register: answer
+      run_once: false
+      delegate_to: localhost
 
     - name: Commit if yes
       ansible.netcommon.cli_command:
@@ -72,7 +74,7 @@
           y
           y
       when:
-        - answer.user_input is defined 
+        - answer.user_input is defined
         - answer.user_input | lower == "yes"  # alwyas yes, not YeS, YES etc.
 
     - name: Clear conf if no
@@ -82,7 +84,9 @@
           clear configuration candidate
           load configuration file backup_{{timestamp}}.cfg replace
           commit
-      when: answer.user_input | lower != "yes"
+      when:
+        - answer.user_input is defined
+        - answer.user_input | lower != "yes"  # alwyas yes, not YeS, YES etc.
 
   rescue:
     - name: Rollback to backup
