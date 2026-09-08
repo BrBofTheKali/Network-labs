@@ -40,13 +40,13 @@
           - "interface Ethernet {{ item.interface }}"
       loop: "{{ list | selectattr('to', 'equalto', 'CORE-SARATOV') | list }}"
 
-    - name: Set password to huawei and mikrotik
+    - name: Set password to huawei
       community.network.ce_config:
         lines:
           - isis auth {{ auth_to_huawei_method }} key-id {{ auth_to_huawei_keyid }} cipher {{ auth_to_huawei_password }}
         parents:
           - "interface Ethernet {{ item.interface }}"
-      loop: "{{ list | rejectattr('to', 'in', ['CORE-SARATOV', 'internal']) | rejectattr('IPv6', 'eq', 'not supported') | list }}"
+      loop: "{{ list | rejectattr('to', 'in', ['CORE-SARATOV', 'internal']) | rejectattr('ipv6', 'eq', 'not supported') | list }}"
 
     - name: Get ISIS interface
       ansible.netcommon.cli_command:
