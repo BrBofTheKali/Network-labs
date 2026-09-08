@@ -64,6 +64,13 @@
       run_once: false
       delegate_to: localhost
 
+    - name: Share answer with all hosts
+      ansible.builtin.set_fact:
+        do_commit: "{{ answer.user_input | default('') | lower == 'yes' }}"
+      run_once: true
+      delegate_to: localhost
+      delegate_facts: true
+
     - name: Commit if yes
       ansible.netcommon.cli_command:
         command: |
@@ -73,9 +80,7 @@
           save vrpcfg.cfg
           y
           y
-      when:
-        - answer.user_input is defined
-        - answer.user_input | lower == "yes"  # alwyas yes, not YeS, YES etc.
+      when: do_commit | bool
 
     - name: Clear conf if no
       ansible.netcommon.cli_command:
@@ -84,9 +89,8 @@
           clear configuration candidate
           load configuration file backup_{{timestamp}}.cfg replace
           commit
-      when:
-        - answer.user_input is defined
-        - answer.user_input | lower != "yes"  # alwyas yes, not YeS, YES etc.
+      when: do_commit | bool
+
 
   rescue:
     - name: Rollback to backup
