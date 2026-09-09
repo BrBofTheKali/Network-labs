@@ -69,7 +69,6 @@
         do_commit: "{{ answer.user_input | default('') | lower == 'yes' }}"
       run_once: true
       delegate_to: localhost
-      delegate_facts: true
 
     - name: Commit if yes
       ansible.netcommon.cli_command:
