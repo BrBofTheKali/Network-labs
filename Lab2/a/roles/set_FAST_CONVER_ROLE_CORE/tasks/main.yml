@@ -1,0 +1,88 @@
+---
+- name: Get timestamp
+  ansible.builtin.shell: "date +%Y%m%d_%H%M%S"
+  delegate_to: localhost
+  register: ts
+  changed_when: false # false - never "changed" bc it isn't a configuration, it's pre_task on EVE-NG host
+
+- name: Get general list # we're taking all string where hostname = inventory_hostname. See. IPAM_NETWORK.yml
+  ansible.builtin.set_fact:
+    list: "{{routers| selectattr('hostname', 'equalto', inventory_hostname) | list}}"
+
+- name: deploy config
+  block:
+    - name: create key-chain
+      ecorouter.ecorouteros.ecorouteros_config:
+        lines:
+          - "spf-interval-exp 50 1000"
+          - "prc-interval-exp 50 1000"
+          - "lsp-gen-interval 50"
+          - "lsp-refresh-interval 300"
+          - "max-lsp-lifetime 1200"
+        parents:
+          - "router isis 1"
+      loop: "{{ list }}"
+
+    - name: print difference
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "sh ip int brief"
+          - "sh isis interface"
+      register: diff_output
+
+    - name: print that was changed
+      ansible.builtin.debug:
+        msg: "{{diff_output.stdout_lines}}"
+
+    - name: ask to me
+      ansible.builtin.pause:
+        prompt: "Commit? NO - reload(yes/no)"
+      register: answer
+
+    - name: commit if yes
+      ecorouter.ecorouteros.ecorouteros_config:
+        commands: write
+      when: answer.user_input | lower == "yes"  #alwyas yes, not YeS, YES etc.
+
+       # NEED TO FIND A NORMAL SOLUTION!
+#    - name: reload prompt
+#      ecorouter.ecorouteros.ecorouteros_command: # need to improve this moment, very bad solution
+#        commands: "reload"
+#        prompt:
+#          - "reboot system (y/n):"
+#        answer: "y"
+#      when: answer.user_input | lower == "no"
+  when: answer_key_chain.user_input | lower == "yes"
+
+  rescue:
+    - name: display warning
+      ansible.builtin.debug:
+        msg: "Someting broken or you want to backup. Need to reload router manualy!"
+
+    - name: get difference
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "reload"
+      register: diff_output
+
+    - name: display difference
+      ansible.builtin.debug:
+        msg: "{{diff_output.stdout_lines[0]}}"
+
+    - name: answer
+      ansible.builtin.pause:
+        prompt: "Reload?(yes/no)"
+      register: reload_answer
+
+    - name: rollback to backup
+      ecorouter.ecorouteros.ecorouteros_command:
+        commands:
+          - "reload"
+          - "y"
+      when: reload_answer | lower == "yes"
+
+    - name: message if no
+      ansible.builtin.debug:
+        msg: "Okay, reload canceled. Be carefull and check difference in your configs"
+      when: reload_answer | lower == "no"
+
