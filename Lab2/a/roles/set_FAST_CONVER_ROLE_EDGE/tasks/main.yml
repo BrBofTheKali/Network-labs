@@ -24,7 +24,7 @@
         lines:
           - "timer spf 1 50 100"
           - "timer lsp-generation 1 50 100"
-          - "timer lspf-refresh 300"
+          - "timer lsp-refresh 300"
           - "timer lsp-max-age 1200"
         parents:
           - "isis 1"

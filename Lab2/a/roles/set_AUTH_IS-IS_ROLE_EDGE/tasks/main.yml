@@ -1,4 +1,8 @@
 ---
+- name: clear var list
+  ansible.builtin.set_fact:
+    list: []
+
 - name: Load IP+Interface
   ansible.builtin.include_vars:
     file: "{{ playbook_dir }}/../../IPAM_IP.yml"
@@ -22,7 +26,6 @@
 - name: Set facts
   ansible.builtin.set_fact:
     timestamp: "{{ ts.stdout | trim }}" # trim - remove whitespace
-
 
 - name: Create_backup
   ansible.netcommon.cli_command:
